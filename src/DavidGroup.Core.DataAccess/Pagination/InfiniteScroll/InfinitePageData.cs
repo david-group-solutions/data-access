@@ -25,7 +25,7 @@ public record InfinitePageData<T>
     /// <param name="hasNextPage">Indicates whether there are more pages available after this one.</param>
     public InfinitePageData(IEnumerable<T>? entities, DynamicCursor? nextCursor, bool hasNextPage)
     {
-        Entities = entities?.ToImmutableArray() ?? [];
+        Entities = entities?.ToImmutableList() ?? [];
         NextCursor = nextCursor;
         if (nextCursor is not null)
             NextCursorToken = nextCursor.Encode();
@@ -36,7 +36,7 @@ public record InfinitePageData<T>
     /// Gets the entities retrieved for the current page.
     /// </summary>
     [JsonInclude]
-    public ImmutableArray<T> Entities { get; private init; } = [];
+    public ImmutableList<T> Entities { get; private init; } = [];
 
     /// <summary>
     /// Gets the dynamic cursor to be used in the next query.
