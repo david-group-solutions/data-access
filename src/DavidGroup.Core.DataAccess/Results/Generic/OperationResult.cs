@@ -31,18 +31,6 @@ public abstract record OperationResult<T> : OperationResult
     public override bool Succeeded => base.Succeeded;
 
     /// <summary>
-    /// Indicates whether the operation has any warnings.
-    /// </summary>
-    [MemberNotNullWhen(returnValue: false, member: nameof(Value))]
-    public override bool HasWarnings() => base.HasWarnings();
-
-    /// <summary>
-    /// Indicates whether the operation has any errors.
-    /// </summary>
-    [MemberNotNullWhen(returnValue: false, member: nameof(Value))]
-    public override bool HasErrors() => base.HasErrors();
-
-    /// <summary>
     /// Creates a successful operation result with a value.
     /// </summary>
     public static OperationResult<T> Success(T value, params OperationResultMessage[] messages) =>
@@ -57,8 +45,8 @@ public abstract record OperationResult<T> : OperationResult
     /// <summary>
     /// Creates a failed operation result with no value.
     /// </summary>
-    public new static OperationResult<T> Failure(params OperationResultMessage[] messages) =>
-        new FailedOperationResult<T>(default, messages);
+    public static new OperationResult<T> Failure(params OperationResultMessage[] messages) =>
+        new FailedOperationResult<T>(messages);
 
     /// <summary>
     /// Implicitly converts an <see cref="OperationResult{T}"/> to its underlying value.
@@ -66,10 +54,7 @@ public abstract record OperationResult<T> : OperationResult
     /// <exception cref="InvalidOperationException">Thrown if <see cref="Value"/> is null.</exception>
     public static implicit operator T(OperationResult<T> result)
     {
-        if (result.Value == null)
-            throw new InvalidOperationException();
-
-        return result.Value;
+        return result.Value ?? throw new InvalidOperationException(ErrorMessages.NoValue);
     }
 
     /// <summary>
@@ -78,7 +63,7 @@ public abstract record OperationResult<T> : OperationResult
     public static implicit operator OperationResult<T>(T? value)
     {
         return value is null
-            ? Failure()
+            ? Failure(new OperationResultMessage(ErrorMessages.NoValue, OperationResultSeverity.Error))
             : Success(value);
     }
 }

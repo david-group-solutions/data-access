@@ -4,10 +4,6 @@ namespace DavidGroup.Core.DataAccessTests.Results;
 
 public class SuccessfulOperationResultTests : OperationResultTestsBase
 {
-    // =========================================================================
-    // SuccessfulOperationResult
-    // =========================================================================
-
     [Fact]
     public void Succeeded_IsTrue()
     {

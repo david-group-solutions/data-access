@@ -22,10 +22,10 @@ public sealed record FailedOperationResult : OperationResult
     /// <summary>
     /// Constructor for JSON serialization/deserialization.
     /// </summary>
-    /// <param name="messages"></param>
+    /// <param name="messages">An optional array of <see cref="OperationResultMessage"/> providing details about the failure.</param>
     [JsonConstructor]
     public FailedOperationResult(ImmutableArray<OperationResultMessage> messages)
-        : base(messages.ToArray()) { }
+        : this(messages.ToArray()) { }
 
     /// <summary>
     /// Gets a value indicating whether the operation succeeded.
