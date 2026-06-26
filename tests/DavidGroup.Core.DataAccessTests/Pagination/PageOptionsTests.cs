@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 using DavidGroup.Core.DataAccess.Pagination;
 
@@ -193,6 +194,44 @@ public static class PageOptionsTests
                 Assert.NotEmpty(results);
                 Assert.Contains(results, r => r.ErrorMessage!.Equals($"{ErrorMessages.PageSizeShouldNotExceedMaximum}={configuredMax}"));
             }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // JSON Serialization / Deserialization
+    // -------------------------------------------------------------------------
+
+    public class JsonSerializationDeserializationTests
+    {
+        [Fact]
+        public void Serialize_ThenDeserialize_ShouldPreserveAllProperties()
+        {
+            // Arrange
+            PageOptions original = new() { Page = 1, Size = 100 };
+
+            // Act
+            string json = JsonSerializer.Serialize(original);
+            PageOptions? deserialized = JsonSerializer.Deserialize<PageOptions>(json);
+
+            // Assert
+            Assert.NotNull(deserialized);
+            Assert.Equal(original.Page, deserialized.Page);
+            Assert.Equal(original.Size, deserialized.Size);
+        }
+
+        [Fact]
+        public void Deserialize_WithMissingFields_ShouldUseDefaults()
+        {
+            // Arrange
+            const string json = "{}";
+
+            // Act
+            PageOptions? options = JsonSerializer.Deserialize<PageOptions>(json);
+
+            // Assert
+            Assert.NotNull(options);
+            Assert.Equal(0, options.Page);
+            Assert.Equal(0, options.Size);
         }
     }
 }
