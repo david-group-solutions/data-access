@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 namespace DavidGroup.Core.DataAccess.Pagination;
 
@@ -22,9 +23,9 @@ public record PageData<T>
     /// <param name="totalCount">The total number of entities across all pages.</param>
     /// <param name="page">The current page number (1-based).</param>
     /// <param name="size">The number of items per page.</param>
-    public PageData(IEnumerable<T> entities, int totalCount, int page, int size)
+    public PageData(IEnumerable<T>? entities, int totalCount, int page, int size)
     {
-        Entities = entities;
+        Entities = entities?.ToImmutableArray() ?? [];
         TotalCount = totalCount;
         TotalPages = (int)Math.Ceiling(TotalCount / (double)size);
         HasPreviousPage = page > 1;
@@ -45,7 +46,7 @@ public record PageData<T>
     /// Gets the entities in the current page.
     /// </summary>
     [JsonInclude]
-    public IEnumerable<T> Entities { get; protected init; } = [];
+    public ImmutableArray<T> Entities { get; protected init; } = [];
 
     /// <summary>
     /// Gets the total number of entities across all pages.
@@ -70,4 +71,43 @@ public record PageData<T>
     /// </summary>
     [JsonInclude]
     public bool HasNextPage { get; protected init; }
+
+    /// <summary>
+    /// Overrides equality in order to make two record comparable.
+    /// </summary>
+    /// <param name="other">Other instance which is compared to this.</param>
+    /// <returns></returns>
+    public virtual bool Equals(PageData<T>? other)
+    {
+        if (ReferenceEquals(this, other))
+            return true;
+
+        if (other is null)
+            return false;
+
+        return Entities.SequenceEqual(other.Entities) &&
+               TotalCount == other.TotalCount &&
+               TotalPages == other.TotalPages &&
+               HasPreviousPage == other.HasPreviousPage &&
+               HasNextPage == other.HasNextPage;
+    }
+
+    /// <summary>
+    /// Overrides equality in order to make two record comparable.
+    /// </summary>
+    /// <returns></returns>
+    public override int GetHashCode()
+    {
+        HashCode hash = new();
+
+        foreach (T entity in Entities)
+            hash.Add(entity);
+
+        hash.Add(TotalCount);
+        hash.Add(TotalCount);
+        hash.Add(HasPreviousPage);
+        hash.Add(HasNextPage);
+
+        return hash.ToHashCode();
+    }
 }

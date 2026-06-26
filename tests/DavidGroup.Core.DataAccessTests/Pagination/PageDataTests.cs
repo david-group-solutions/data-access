@@ -178,11 +178,12 @@ public static class PageDataTests
             PageData<string> fromExplicit = new(entities, 20, 2, 5);
 
             // Assert
+            Assert.Equal(fromExplicit, fromOptions);
             Assert.Equal(fromExplicit.TotalCount, fromOptions.TotalCount);
             Assert.Equal(fromExplicit.TotalPages, fromOptions.TotalPages);
             Assert.Equal(fromExplicit.HasPreviousPage, fromOptions.HasPreviousPage);
             Assert.Equal(fromExplicit.HasNextPage, fromOptions.HasNextPage);
-            Assert.Equal(fromExplicit.Entities, fromOptions.Entities);
+            Assert.True(fromExplicit.Entities.SequenceEqual(fromOptions.Entities));
         }
     }
 
@@ -242,7 +243,7 @@ public static class PageDataTests
             Assert.Equal(original.TotalPages, deserialized.TotalPages);
             Assert.Equal(original.HasPreviousPage, deserialized.HasPreviousPage);
             Assert.Equal(original.HasNextPage, deserialized.HasNextPage);
-            Assert.Equal(original.Entities, deserialized.Entities);
+            Assert.True(original.Entities.SequenceEqual(deserialized.Entities));
         }
 
         [Fact]

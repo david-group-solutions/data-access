@@ -31,7 +31,7 @@ public static class PaginationExtensionsTests
             PageData<int> result = source.ToPageData(Options(1, 3));
 
             // Assert
-            Assert.Equal([1, 2, 3], result.Entities);
+            Assert.True(result.Entities.SequenceEqual([1, 2, 3]));
         }
 
         [Fact]
@@ -44,7 +44,7 @@ public static class PaginationExtensionsTests
             PageData<int> result = source.ToPageData(Options(2, 3));
 
             // Assert
-            Assert.Equal([4, 5, 6], result.Entities);
+            Assert.True(result.Entities.SequenceEqual([4, 5, 6]));
         }
 
         [Fact]
@@ -57,7 +57,7 @@ public static class PaginationExtensionsTests
             PageData<int> result = source.ToPageData(Options(4, 3));
 
             // Assert
-            Assert.Equal([10], result.Entities);
+            Assert.True(result.Entities.SequenceEqual([10]));
         }
 
         [Fact]
@@ -99,7 +99,7 @@ public static class PaginationExtensionsTests
 
             // Assert
             Assert.Equal(7, result.TotalCount);
-            Assert.Equal([7], result.Entities);
+            Assert.True(result.Entities.SequenceEqual([7]));
         }
 
         // ----- edge: empty source -----
@@ -130,7 +130,7 @@ public static class PaginationExtensionsTests
             PageData<int> result = source.ToPageData(Options(1, 100));
 
             // Assert
-            Assert.Equal(Range(4), result.Entities);
+            Assert.True(result.Entities.SequenceEqual(Range(4)));
             Assert.Equal(4, result.TotalCount);
         }
 
@@ -144,7 +144,7 @@ public static class PaginationExtensionsTests
             PageData<int> result = source.ToPageData(Options(1, 5));
 
             // Assert
-            Assert.Equal(Range(5), result.Entities);
+            Assert.True(result.Entities.SequenceEqual(Range(5)));
         }
 
         // ----- type parameter -----
@@ -159,7 +159,7 @@ public static class PaginationExtensionsTests
             PageData<string> result = source.ToPageData(Options(2, 2));
 
             // Assert
-            Assert.Equal(["c", "d"], result.Entities);
+            Assert.True(result.Entities.SequenceEqual(["c", "d"]));
         }
 
         [Fact]
@@ -222,7 +222,7 @@ public static class PaginationExtensionsTests
             PageData<int> result = source.ToPageData(Options(1, 3));
 
             // Assert
-            Assert.Equal([1, 2, 3], result.Entities);
+            Assert.True(result.Entities.SequenceEqual([1, 2, 3]));
         }
 
         [Fact]
@@ -235,7 +235,7 @@ public static class PaginationExtensionsTests
             PageData<int> result = source.ToPageData(Options(2, 3));
 
             // Assert
-            Assert.Equal([4, 5, 6], result.Entities);
+            Assert.True(result.Entities.SequenceEqual([4, 5, 6]));
         }
 
         [Fact]
@@ -248,7 +248,7 @@ public static class PaginationExtensionsTests
             PageData<int> result = source.ToPageData(Options(4, 3));
 
             // Assert
-            Assert.Equal([10], result.Entities);
+            Assert.True(result.Entities.SequenceEqual([10]));
         }
 
         [Fact]
@@ -290,7 +290,7 @@ public static class PaginationExtensionsTests
 
             // Assert
             Assert.Equal(7, result.TotalCount);
-            Assert.Equal([7], result.Entities);
+            Assert.True(result.Entities.SequenceEqual([7]));
         }
 
         // ----- edge: empty source -----
@@ -351,7 +351,7 @@ public static class PaginationExtensionsTests
             PageData<string> result = source.ToPageData(Options(2, 2));
 
             // Assert
-            Assert.Equal(["c", "d"], result.Entities);
+            Assert.True(result.Entities.SequenceEqual(["c", "d"]));
         }
 
         [Fact]
@@ -391,7 +391,7 @@ public static class PaginationExtensionsTests
             PageData<int> fromEnumerable = data.AsEnumerable().ToPageData(opts);
             PageData<int> fromQueryable = data.AsQueryable().ToPageData(opts);
 
-            Assert.Equal(fromEnumerable.Entities, fromQueryable.Entities);
+            Assert.True(fromEnumerable.Entities.SequenceEqual(fromQueryable.Entities));
             Assert.Equal(fromEnumerable.TotalCount, fromQueryable.TotalCount);
         }
     }
