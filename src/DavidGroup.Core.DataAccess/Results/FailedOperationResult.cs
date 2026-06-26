@@ -7,7 +7,7 @@
 /// This type always indicates that the operation did not succeed (<see cref="Succeeded"/> returns false).
 /// Optional messages can be attached to provide additional information, warning or error details.
 /// </remarks>
-public record FailedOperationResult : OperationResult
+public sealed record FailedOperationResult : OperationResult
 {
     /// <summary>
     /// Initializes a new instance of <see cref="FailedOperationResult"/> with optional error messages.

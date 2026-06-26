@@ -43,13 +43,12 @@ public abstract record OperationResult
     {
         get
         {
-            if (Succeeded)
-                return OperationStatus.Success;
-
-            if (HasWarnings())
+            if (Succeeded && HasWarnings())
                 return OperationStatus.PartialSuccess;
 
-            return OperationStatus.Failure;
+            return Succeeded
+                ? OperationStatus.Success
+                : OperationStatus.Failure;
         }
     }
 
@@ -78,12 +77,45 @@ public abstract record OperationResult
     /// <summary>
     /// Returns all messages with severity <see cref="OperationResultSeverity.Warning"/>.
     /// </summary>
-    private IEnumerable<OperationResultMessage> FindWarnings() =>
+    public IEnumerable<OperationResultMessage> FindWarnings() =>
         Messages.Where(x => x.Severity == OperationResultSeverity.Warning);
 
     /// <summary>
     /// Returns all messages with severity <see cref="OperationResultSeverity.Error"/>.
     /// </summary>
-    private IEnumerable<OperationResultMessage> FindErrors() =>
+    public IEnumerable<OperationResultMessage> FindErrors() =>
         Messages.Where(x => x.Severity == OperationResultSeverity.Error);
+
+    /// <summary>
+    /// Overrides equality in order to make two records comparable.
+    /// </summary>
+    /// <param name="other">Other instance which is compared to this.</param>
+    /// <returns></returns>
+    public virtual bool Equals(OperationResult? other)
+    {
+        if (ReferenceEquals(this, other))
+            return true;
+
+        if (other is null)
+            return false;
+
+        return Succeeded == other.Succeeded &&
+               Messages.SequenceEqual(other.Messages);
+    }
+
+    /// <summary>
+    /// Overrides equality in order to make two records comparable.
+    /// </summary>
+    /// <returns></returns>
+    public override int GetHashCode()
+    {
+        HashCode hash = new();
+
+        hash.Add(Succeeded);
+
+        foreach (OperationResultMessage message in Messages)
+            hash.Add(message);
+
+        return hash.ToHashCode();
+    }
 }
