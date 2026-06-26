@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using DavidGroup.Core.DataAccess.Results;
 
 namespace DavidGroup.Core.DataAccessTests.Results;
@@ -449,5 +451,44 @@ public class OperationResultTests : OperationResultTestsBase
         }
     }
 
-    // TODO: Add JSON roundtrip tests
+    // -------------------------------------------------------------------------
+    // JSON Serialization / Deserialization
+    // -------------------------------------------------------------------------
+
+    public class JsonSerializationDeserializationTests
+    {
+        [Fact]
+        public void SuccessfulResult_Serialize_ThenDeserialize_ShouldPreserveAllProperties()
+        {
+            // Arrange
+            OperationResult original = OperationResult.Success(Info(), Warn());
+
+            // Act
+            string json = JsonSerializer.Serialize(original);
+            OperationResult? deserialized = JsonSerializer.Deserialize<SuccessfulOperationResult>(json);
+
+            // Assert
+            Assert.NotNull(deserialized);
+            Assert.Equal(original, deserialized);
+            Assert.Equal(original.Succeeded, deserialized.Succeeded);
+            Assert.True(original.Messages.SequenceEqual(deserialized.Messages));
+        }
+
+        [Fact]
+        public void FailedResult_Serialize_ThenDeserialize_ShouldPreserveAllProperties()
+        {
+            // Arrange
+            OperationResult original = OperationResult.Failure(Info(), Warn(), Error());
+
+            // Act
+            string json = JsonSerializer.Serialize(original);
+            OperationResult? deserialized = JsonSerializer.Deserialize<FailedOperationResult>(json);
+
+            // Assert
+            Assert.NotNull(deserialized);
+            Assert.Equal(original, deserialized);
+            Assert.Equal(original.Succeeded, deserialized.Succeeded);
+            Assert.True(original.Messages.SequenceEqual(deserialized.Messages));
+        }
+    }
 }

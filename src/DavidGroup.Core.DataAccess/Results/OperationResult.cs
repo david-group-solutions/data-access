@@ -15,7 +15,7 @@ public abstract record OperationResult
     /// <param name="messages">The messages associated with the operation result, such as warnings or errors.</param>
     private protected OperationResult(params OperationResultMessage[] messages)
     {
-        Messages = [.. messages];
+        Messages = [..messages];
     }
 
     /// <summary>

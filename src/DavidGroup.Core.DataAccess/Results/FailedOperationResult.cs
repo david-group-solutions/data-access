@@ -1,4 +1,7 @@
-﻿namespace DavidGroup.Core.DataAccess.Results;
+﻿using System.Collections.Immutable;
+using System.Text.Json.Serialization;
+
+namespace DavidGroup.Core.DataAccess.Results;
 
 /// <summary>
 /// Represents a failed operation result.
@@ -15,6 +18,14 @@ public sealed record FailedOperationResult : OperationResult
     /// <param name="messages">An optional array of <see cref="OperationResultMessage"/> providing details about the failure.</param>
     public FailedOperationResult(params OperationResultMessage[] messages)
         : base(messages) { }
+
+    /// <summary>
+    /// Constructor for JSON serialization/deserialization.
+    /// </summary>
+    /// <param name="messages"></param>
+    [JsonConstructor]
+    public FailedOperationResult(ImmutableArray<OperationResultMessage> messages)
+        : base(messages.ToArray()) { }
 
     /// <summary>
     /// Gets a value indicating whether the operation succeeded.

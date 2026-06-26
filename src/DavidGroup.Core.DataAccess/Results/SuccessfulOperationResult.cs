@@ -1,4 +1,7 @@
-﻿namespace DavidGroup.Core.DataAccess.Results;
+﻿using System.Collections.Immutable;
+using System.Text.Json.Serialization;
+
+namespace DavidGroup.Core.DataAccess.Results;
 
 /// <summary>
 /// Represents a successful operation result.
@@ -19,6 +22,14 @@ public sealed record SuccessfulOperationResult : OperationResult
         if (HasErrors())
             throw new InvalidOperationException(ErrorMessages.SuccessfulOperationResultCannotContainAnyErrors);
     }
+
+    /// <summary>
+    /// Constructor for JSON serialization/deserialization.
+    /// </summary>
+    /// <param name="messages"></param>
+    [JsonConstructor]
+    public SuccessfulOperationResult(ImmutableArray<OperationResultMessage> messages)
+        : base(messages.ToArray()) { }
 
     /// <summary>
     /// Gets a value indicating whether the operation succeeded.
