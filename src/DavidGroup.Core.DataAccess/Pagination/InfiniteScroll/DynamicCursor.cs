@@ -13,7 +13,7 @@ namespace DavidGroup.Core.DataAccess.Pagination.InfiniteScroll;
 public sealed record DynamicCursor(object?[] Values)
 {
     /// <summary>
-    /// Overrides equality in order to make two record comparable.
+    /// Overrides equality in order to make two records comparable.
     /// </summary>
     /// <param name="other">Other instance which is compared to this.</param>
     /// <returns></returns>
@@ -22,7 +22,7 @@ public sealed record DynamicCursor(object?[] Values)
            Values.AsSpan().SequenceEqual(other.Values);
 
     /// <summary>
-    /// Overrides equality in order to make two record comparable.
+    /// Overrides equality in order to make two records comparable.
     /// </summary>
     /// <returns></returns>
     public override int GetHashCode()
