@@ -25,7 +25,7 @@ public record PageData<T>
     /// <param name="size">The number of items per page.</param>
     public PageData(IEnumerable<T>? entities, int totalCount, int page, int size)
     {
-        Entities = entities?.ToImmutableArray() ?? [];
+        Entities = entities?.ToImmutableList() ?? [];
         TotalCount = totalCount;
         TotalPages = (int)Math.Ceiling(TotalCount / (double)size);
         HasPreviousPage = page > 1;
@@ -46,7 +46,7 @@ public record PageData<T>
     /// Gets the entities in the current page.
     /// </summary>
     [JsonInclude]
-    public ImmutableArray<T> Entities { get; protected init; } = [];
+    public ImmutableList<T> Entities { get; protected init; } = [];
 
     /// <summary>
     /// Gets the total number of entities across all pages.
