@@ -14,9 +14,9 @@ public record OperationResultMessage
     /// <param name="message">The message text. Cannot be null.</param>
     /// <param name="severity">The severity level of the message.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="message"/> is null.</exception>
-    public OperationResultMessage(string? message, OperationResultSeverity severity)
+    public OperationResultMessage(string message, OperationResultSeverity severity)
     {
-        Message = message ?? throw new ArgumentNullException(nameof(message));
+        Message = message;
         Severity = severity;
     }
 
