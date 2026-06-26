@@ -73,7 +73,7 @@ public record PageData<T>
     public bool HasNextPage { get; protected init; }
 
     /// <summary>
-    /// Overrides equality in order to make two record comparable.
+    /// Overrides equality in order to make two records comparable.
     /// </summary>
     /// <param name="other">Other instance which is compared to this.</param>
     /// <returns></returns>
@@ -93,7 +93,7 @@ public record PageData<T>
     }
 
     /// <summary>
-    /// Overrides equality in order to make two record comparable.
+    /// Overrides equality in order to make two records comparable.
     /// </summary>
     /// <returns></returns>
     public override int GetHashCode()
