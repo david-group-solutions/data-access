@@ -9,4 +9,9 @@ public class ErrorMessages
     /// Successful operation result cannot contain any errors.
     /// </summary>
     public const string SuccessfulOperationResultCannotContainAnyErrors = nameof(SuccessfulOperationResultCannotContainAnyErrors);
+
+    /// <summary>
+    /// Used when no value found.
+    /// </summary>
+    public const string NoValue = nameof(NoValue);
 }

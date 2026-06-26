@@ -59,7 +59,8 @@ public class OperationResultTests : OperationResultTestsBase
         public void WithErrors_MustThrow_InvalidOperationException()
         {
             // Arrange, Act, Assert
-            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() => OperationResult.Success(Error()));
+            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(()
+                => OperationResult.Success(Error()));
 
             Assert.Equal(ErrorMessages.SuccessfulOperationResultCannotContainAnyErrors, ex.Message);
         }
@@ -100,16 +101,18 @@ public class OperationResultTests : OperationResultTestsBase
         }
 
         [Fact]
-        public void WithErrors_MessagesAreAttached()
+        public void WithMessages_MessagesAreAttached()
         {
             // Arrange
+            OperationResultMessage info = Info();
+            OperationResultMessage warn = Warn();
             OperationResultMessage error = Error();
 
             // Act
-            OperationResult result = OperationResult.Failure(error);
+            OperationResult result = OperationResult.Failure(info, warn, error);
 
             // Assert
-            Assert.True(result.Messages.SequenceEqual([error]));
+            Assert.True(result.Messages.SequenceEqual([info, warn, error]));
         }
     }
 
@@ -331,7 +334,7 @@ public class OperationResultTests : OperationResultTestsBase
         public void Failed_WithMultipleErrors_IsFailure()
         {
             // Arrange, Act
-            OperationResult result = OperationResult.Failure(Error("e1"), Error("e2"));
+            OperationResult result = OperationResult.Failure(Error("e1"), Error("e2"), Warn("w1"), Info("i1"));
 
             // Assert
             Assert.Equal(OperationStatus.Failure, result.Status);
