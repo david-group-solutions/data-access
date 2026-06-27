@@ -8,6 +8,17 @@ namespace DavidGroup.Core.DataAccessTests.Sql.UnitOfWork.EFCore;
 
 public class EfUnitOfWorkTests
 {
+    public class TestEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class TestDbContext(DbContextOptions<TestDbContext> options) : DbContext(options)
+    {
+        public DbSet<TestEntity> Entities => Set<TestEntity>();
+    }
+
     public abstract class EfUnitOfWorkTestBase : IAsyncLifetime
     {
         private SqliteConnection _connection = null!;
