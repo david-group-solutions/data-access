@@ -1,3 +1,5 @@
+using System.Data.Common;
+
 using Microsoft.Data.SqlClient;
 
 namespace DavidGroup.Core.DataAccess.Sql.UnitOfWork.ADO.NET;
@@ -7,27 +9,27 @@ namespace DavidGroup.Core.DataAccess.Sql.UnitOfWork.ADO.NET;
 /// </summary>
 /// <remarks>
 /// This interface extends <see cref="IBaseUnitOfWork"/> to manage SQL connections and transactions
-/// directly using <see cref="SqlConnection"/> and <see cref="SqlTransaction"/>.
+/// directly using <see cref="DbConnection"/> and <see cref="DbTransaction"/>.
 /// It provides methods for opening connections and executing operations within a transactional context.
 /// </remarks>
 public interface IAdoNetUnitOfWork : IBaseUnitOfWork
 {
     /// <summary>
-    /// Gets the active <see cref="SqlConnection"/> instance associated with the current unit of work.
+    /// Gets the active <see cref="DbConnection"/> instance associated with the current unit of work.
     /// </summary>
     /// <remarks>
     /// The connection is typically opened using <see cref="OpenConnectionAsync(CancellationToken)"/>.
     /// </remarks>
-    SqlConnection Connection { get; }
+    DbConnection Connection { get; }
 
     /// <summary>
-    /// Gets the active <see cref="SqlTransaction"/> instance associated with the current unit of work.
+    /// Gets the active <see cref="DbTransaction"/> instance associated with the current unit of work.
     /// </summary>
     /// <remarks>
     /// The transaction is created when <see cref="IBaseUnitOfWork.CreateTransactionAsync(CancellationToken)"/> is called.
     /// It can be committed or rolled back using the corresponding methods from the base interface.
     /// </remarks>
-    SqlTransaction Transaction { get; }
+    DbTransaction Transaction { get; }
 
     /// <summary>
     /// Opens a new SQL database connection asynchronously if it is not already open.
@@ -59,7 +61,7 @@ public interface IAdoNetUnitOfWork : IBaseUnitOfWork
     /// based on the operation's outcome.
     /// </para>
     /// <para>
-    /// If the <paramref name="action"/> completes successfully, the transaction is committed.  
+    /// If the <paramref name="action"/> completes successfully, the transaction is committed.
     /// If an exception is thrown during execution, the transaction is rolled back and the exception is rethrown.
     /// </para>
     /// <para>
