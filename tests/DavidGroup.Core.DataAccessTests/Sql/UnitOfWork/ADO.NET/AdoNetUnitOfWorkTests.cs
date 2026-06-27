@@ -1,3 +1,6 @@
+using System.Data;
+using System.Data.Common;
+
 using DavidGroup.Core.DataAccess.Sql.UnitOfWork.ADO.NET;
 
 using Microsoft.Data.Sqlite;
@@ -6,10 +9,60 @@ namespace DavidGroup.Core.DataAccessTests.Sql.UnitOfWork.ADO.NET;
 
 public class AdoNetUnitOfWorkTests
 {
-    private static AdoNetUnitOfWork CreateUnitOfWork() =>
-        new(() => new SqliteConnection("DataSource=:memory:"));
+    public abstract class AdoNetUnitOfWorkTestBase : IAsyncLifetime
+    {
+        private SqliteConnection _connection = null!;
 
-    public class GuardClauseTests
+        protected readonly string TableName = $"[UnitOfWorkTest_{Guid.NewGuid():N}]";
+
+        public async Task InitializeAsync()
+        {
+            _connection = new SqliteConnection("Data Source=UnitOfWorkTests;Mode=Memory;Cache=Shared");
+            await _connection.OpenAsync();
+
+            await using SqliteCommand cmd = _connection.CreateCommand();
+            cmd.CommandText = $"CREATE TABLE {TableName} (Id INT IDENTITY PRIMARY KEY, Name NVARCHAR(100) NOT NULL)";
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        public async Task DisposeAsync()
+        {
+            await _connection.DisposeAsync();
+        }
+
+        protected async Task<long> CountRowsAsync()
+        {
+            _connection = new SqliteConnection("Data Source=UnitOfWorkTests;Mode=Memory;Cache=Shared");
+            await _connection.OpenAsync();
+
+            await using SqliteCommand cmd = _connection.CreateCommand();
+            cmd.CommandText = $"SELECT COUNT(*) FROM {TableName}";
+            return (long)(await cmd.ExecuteScalarAsync())!;
+        }
+
+        protected async Task InsertRowAsync(AdoNetUnitOfWork uow, string name)
+        {
+            await uow.OpenConnectionAsync();
+
+            await using DbCommand cmd = uow.Connection.CreateCommand();
+
+            cmd.Transaction = uow.Transaction;
+
+            cmd.CommandText = $"INSERT INTO {TableName} (Name) VALUES (@name)";
+            cmd.Parameters.Add(new SqliteParameter { ParameterName = "@name", SqliteType = SqliteType.Text, Direction = ParameterDirection.Input, Value = name });
+
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        protected static AdoNetUnitOfWork CreateUnitOfWork()
+            => new(() => new SqliteConnection("Data Source=UnitOfWorkTests;Mode=Memory;Cache=Shared"));
+    }
+
+    // =============================================================================
+    // Guard clauses
+    // =============================================================================
+
+    public class GuardClauseTests : AdoNetUnitOfWorkTestBase
     {
         [Fact]
         public void Connection_Throws_InvalidOperationException_Before_Open()
@@ -137,15 +190,20 @@ public class AdoNetUnitOfWorkTests
             // Arrange
             AdoNetUnitOfWork uow = CreateUnitOfWork();
 
-            // Act, Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() =>
-                uow.ExecuteAsync(async () =>
-                {
-                    // Nested call while outer transaction is active
-                    await uow.ExecuteAsync(() => Task.CompletedTask);
-
-                    await uow.DisposeAsync();
-                }));
+            try
+            {
+                // Act, Assert
+                await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                    uow.ExecuteAsync(async () =>
+                    {
+                        // Nested call while outer transaction is active
+                        await uow.ExecuteAsync(() => Task.CompletedTask);
+                    }));
+            }
+            finally
+            {
+                await uow.DisposeAsync();
+            }
         }
 
         [Fact]
@@ -157,17 +215,362 @@ public class AdoNetUnitOfWorkTests
             // Arrange
             AdoNetUnitOfWork uow = CreateUnitOfWork();
 
+            try
+            {
+                // Act, Assert
+                InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                    uow.ExecuteAsync(async () =>
+                    {
+                        // Nested call while outer transaction is active
+                        await uow.ExecuteAsync(() => Task.CompletedTask);
+                    }));
+
+                Assert.Equal("A transaction is already in progress.", ex.Message);
+            }
+            finally
+            {
+                await uow.DisposeAsync();
+            }
+        }
+    }
+
+    // =============================================================================
+    // Open connection
+    // =============================================================================
+
+    public class OpenConnectionTests : AdoNetUnitOfWorkTestBase
+    {
+        [Fact]
+        public async Task OpenConnectionAsync_Makes_Connection_Available()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await uow.OpenConnectionAsync();
+
+            // Assert
+            Assert.Equal(ConnectionState.Open, uow.Connection.State);
+        }
+
+        [Fact]
+        public async Task OpenConnectionAsync_Is_Idempotent_When_Already_Open()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            await uow.OpenConnectionAsync();
+
+            // Act
+            Exception? ex = await Record.ExceptionAsync(() => uow.OpenConnectionAsync());
+
+            // Assert
+            Assert.Null(ex);
+            Assert.Equal(ConnectionState.Open, uow.Connection.State);
+        }
+    }
+
+    // =============================================================================
+    // CreateTransactionAsync
+    // =============================================================================
+
+    public class CreateTransactionTests : AdoNetUnitOfWorkTestBase
+    {
+        [Fact]
+        public async Task CreateTransactionAsync_Makes_Transaction_Available()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await uow.CreateTransactionAsync();
+
+            // Assert
+            Assert.NotNull(uow.Transaction);
+        }
+
+        [Fact]
+        public async Task CreateTransactionAsync_Opens_Connection_If_Not_Already_Open()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await uow.CreateTransactionAsync();
+
+            // Assert
+            Assert.Equal(ConnectionState.Open, uow.Connection.State);
+        }
+
+        [Fact]
+        public async Task Can_Create_New_Transaction_After_Commit()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            await uow.CreateTransactionAsync();
+            await uow.CommitTransactionAsync();
+
+            // Act
+            Exception? ex = await Record.ExceptionAsync(() => uow.CreateTransactionAsync());
+
+            // Assert
+            Assert.Null(ex);
+        }
+
+        [Fact]
+        public async Task Can_Create_New_Transaction_After_Rollback()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            await uow.CreateTransactionAsync();
+            await uow.RollbackTransactionAsync();
+
+            // Act
+            Exception? ex = await Record.ExceptionAsync(() => uow.CreateTransactionAsync());
+
+            // Assert
+            Assert.Null(ex);
+            await uow.RollbackTransactionAsync();
+        }
+    }
+
+    // =============================================================================
+    // CommitTransactionAsync
+    // =============================================================================
+
+    public class CommitTransactionTests : AdoNetUnitOfWorkTestBase
+    {
+        [Fact]
+        public async Task CommitTransactionAsync_Persists_Data()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await uow.CreateTransactionAsync();
+            await InsertRowAsync(uow, "committed");
+            await uow.CommitTransactionAsync();
+
+            // Assert
+            Assert.Equal(1, await CountRowsAsync());
+        }
+
+        [Fact]
+        public async Task Transaction_Is_Null_After_Commit()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await uow.CreateTransactionAsync();
+            await uow.CommitTransactionAsync();
+
+            // Assert
+            Assert.Throws<InvalidOperationException>(() => _ = uow.Transaction);
+        }
+
+        [Fact]
+        public async Task Second_Commit_Without_New_Transaction_Throws()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            await uow.CreateTransactionAsync();
+            await uow.CommitTransactionAsync();
+
             // Act, Assert
-            InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-                uow.ExecuteAsync(async () =>
-                {
-                    // Nested call while outer transaction is active
-                    await uow.ExecuteAsync(() => Task.CompletedTask);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => uow.CommitTransactionAsync());
+        }
+    }
 
-                    await uow.DisposeAsync();
-                }));
+    // =============================================================================
+    // RollbackTransactionAsync
+    // =============================================================================
 
-            Assert.Equal("A transaction is already in progress.", ex.Message);
+    public class RollbackTransactionTests : AdoNetUnitOfWorkTestBase
+    {
+        [Fact]
+        public async Task RollbackTransactionAsync_Reverts_Data()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await uow.CreateTransactionAsync();
+            await InsertRowAsync(uow, "rolled-back");
+            await uow.RollbackTransactionAsync();
+
+            // Assert
+            Assert.Equal(0, await CountRowsAsync());
+        }
+
+        [Fact]
+        public async Task Transaction_Is_Null_After_Rollback()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await uow.CreateTransactionAsync();
+            await uow.RollbackTransactionAsync();
+
+            // Assert
+            Assert.Throws<InvalidOperationException>(() => _ = uow.Transaction);
+        }
+
+        [Fact]
+        public async Task Only_Uncommitted_Data_Is_Rolled_Back()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await uow.CreateTransactionAsync();
+            await InsertRowAsync(uow, "committed");
+            await uow.CommitTransactionAsync();
+
+            await uow.CreateTransactionAsync();
+            await InsertRowAsync(uow, "rolled-back");
+            await uow.RollbackTransactionAsync();
+
+            // Assert
+            Assert.Equal(1, await CountRowsAsync());
+        }
+
+        [Fact]
+        public async Task Second_Rollback_Without_New_Transaction_Throws()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            await uow.CreateTransactionAsync();
+            await uow.RollbackTransactionAsync();
+
+            // Act, Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => uow.RollbackTransactionAsync());
+        }
+    }
+
+    // =============================================================================
+    // ExecuteAsync
+    // =============================================================================
+
+    public class ExecuteTests : AdoNetUnitOfWorkTestBase
+    {
+        [Fact]
+        public async Task ExecuteAsync_Commits_On_Success()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await uow.ExecuteAsync(async () =>
+            {
+                await InsertRowAsync(uow, "via-execute");
+            });
+
+            // Assert
+            Assert.Equal(1, await CountRowsAsync());
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_Rolls_Back_On_Exception()
+        {
+            // Arrange
+            AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            try
+            {
+                // Act
+                await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                    uow.ExecuteAsync(async () =>
+                    {
+                        await InsertRowAsync(uow, "should-rollback");
+
+                        throw new InvalidOperationException("simulated failure");
+                    }));
+
+                // Assert
+                Assert.Equal(0, await CountRowsAsync());
+            }
+            finally
+            {
+                await uow.DisposeAsync();
+            }
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_Rethrows_Action_Exception()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+            ApplicationException originalException = new("boom");
+
+            // Act, Assert
+            ApplicationException thrown = await Assert.ThrowsAsync<ApplicationException>(() =>
+                uow.ExecuteAsync(() => throw originalException));
+
+            Assert.Same(originalException, thrown);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_Clears_Transaction_After_Success()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await uow.ExecuteAsync(() => Task.CompletedTask);
+
+            // Assert
+            Assert.Throws<InvalidOperationException>(() => _ = uow.Transaction);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_Clears_Transaction_After_Exception()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await Assert.ThrowsAsync<Exception>(() =>
+                uow.ExecuteAsync(() => throw new Exception("fail")));
+
+            // Assert
+            Assert.Throws<InvalidOperationException>(() => _ = uow.Transaction);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_Can_Be_Called_Again_After_Success()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await uow.ExecuteAsync(() => Task.CompletedTask);
+
+            Exception? ex = await Record.ExceptionAsync(() => uow.ExecuteAsync(() => Task.CompletedTask));
+
+            // Assert
+            Assert.Null(ex);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_Can_Be_Called_Again_After_Failure()
+        {
+            // Arrange
+            await using AdoNetUnitOfWork uow = CreateUnitOfWork();
+
+            // Act
+            await Assert.ThrowsAsync<Exception>(() =>
+                uow.ExecuteAsync(() => throw new Exception("first")));
+
+            Exception? ex = await Record.ExceptionAsync(() => uow.ExecuteAsync(() => Task.CompletedTask));
+
+            // Assert
+            Assert.Null(ex);
         }
     }
 
@@ -175,7 +578,7 @@ public class AdoNetUnitOfWorkTests
     // Dispose
     // =============================================================================
 
-    public class DisposeTests
+    public class DisposeTests : AdoNetUnitOfWorkTestBase
     {
         [Fact]
         public void Dispose_Does_Not_Throw_When_Never_Opened()

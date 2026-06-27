@@ -182,6 +182,13 @@ public class AdoNetUnitOfWork(Func<DbConnection> connectionFactory) : IAdoNetUni
 
         await _transaction.DisposeAsync();
         _transaction = null;
+
+        if (_connection is not null)
+        {
+            await _connection.CloseAsync();
+            await _connection.DisposeAsync();
+            _connection = null;
+        }
     }
 
     /// <summary>
@@ -207,6 +214,13 @@ public class AdoNetUnitOfWork(Func<DbConnection> connectionFactory) : IAdoNetUni
 
         await _transaction.DisposeAsync();
         _transaction = null;
+
+        if (_connection is not null)
+        {
+            await _connection.CloseAsync();
+            await _connection.DisposeAsync();
+            _connection = null;
+        }
     }
 
     /// <summary>

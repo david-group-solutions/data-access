@@ -8,17 +8,6 @@ namespace DavidGroup.Core.DataAccessTests.Sql.UnitOfWork.EFCore;
 
 public class EfUnitOfWorkTests
 {
-    public class TestEntity
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-    }
-
-    public class TestDbContext(DbContextOptions<TestDbContext> options) : DbContext(options)
-    {
-        public DbSet<TestEntity> Entities => Set<TestEntity>();
-    }
-
     public abstract class EfUnitOfWorkTestBase : IAsyncLifetime
     {
         private SqliteConnection _connection = null!;
@@ -44,6 +33,17 @@ public class EfUnitOfWorkTests
         }
 
         protected EfUnitOfWork<TestDbContext> CreateUnitOfWork() => new(DbContext);
+
+        protected class TestEntity
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = string.Empty;
+        }
+
+        protected class TestDbContext(DbContextOptions<TestDbContext> options) : DbContext(options)
+        {
+            public DbSet<TestEntity> Entities => Set<TestEntity>();
+        }
     }
 
     // =============================================================================
@@ -136,6 +136,7 @@ public class EfUnitOfWorkTests
         {
             // Arrange
             using EfUnitOfWork<TestDbContext> uow = CreateUnitOfWork();
+
             await uow.CreateTransactionAsync();
             await uow.CommitTransactionAsync();
 
@@ -152,6 +153,7 @@ public class EfUnitOfWorkTests
         {
             // Arrange
             using EfUnitOfWork<TestDbContext> uow = CreateUnitOfWork();
+
             await uow.CreateTransactionAsync();
             await uow.RollbackTransactionAsync();
 
@@ -334,6 +336,7 @@ public class EfUnitOfWorkTests
         {
             // Arrange
             using EfUnitOfWork<TestDbContext> uow = CreateUnitOfWork();
+
             await uow.CreateTransactionAsync();
             await uow.RollbackTransactionAsync();
 
