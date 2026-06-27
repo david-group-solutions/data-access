@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DavidGroup.Core.DataAccess.Entities;
+namespace DavidGroup.Core.DataAccess.Sql.Entities;
 
 /// <summary>
 /// Serves as the base class for all entities that use a strongly-typed primary key.

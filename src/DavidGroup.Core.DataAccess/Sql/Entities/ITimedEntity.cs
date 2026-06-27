@@ -1,4 +1,4 @@
-namespace DavidGroup.Core.DataAccess.Entities;
+namespace DavidGroup.Core.DataAccess.Sql.Entities;
 
 /// <summary>
 /// Marks an entity that tracks its creation and last modification timestamps in UTC.
