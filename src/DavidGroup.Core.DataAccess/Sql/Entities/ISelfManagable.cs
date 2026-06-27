@@ -1,4 +1,4 @@
-﻿namespace DavidGroup.Core.DataAccess.Entities;
+﻿namespace DavidGroup.Core.DataAccess.Sql.Entities;
 
 /// <summary>
 /// Defines a contract for entities that can manage their own creation and update logic

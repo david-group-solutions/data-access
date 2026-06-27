@@ -1,4 +1,4 @@
-﻿namespace DavidGroup.Core.DataAccess.Entities;
+﻿namespace DavidGroup.Core.DataAccess.Sql.Entities;
 
 /// <summary>
 /// Represents an entity with a strongly-typed primary key.

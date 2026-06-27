@@ -1,4 +1,4 @@
-namespace DavidGroup.Core.DataAccess.Entities;
+namespace DavidGroup.Core.DataAccess.Sql.Entities;
 
 /// <summary>
 /// Marks an entity that supports soft deletion.
