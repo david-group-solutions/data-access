@@ -94,14 +94,15 @@ public class EfUnitOfWork<TContext>(TContext context) : IEfUnitOfWork<TContext>,
     /// Saves all pending changes tracked by the current <see cref="DbContext"/> to the database asynchronously.
     /// </summary>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
-    /// <returns>A task representing the asynchronous save operation.</returns>
+    /// <returns>
+    /// A task that represents the asynchronous save operation. The task result contains the number of state entries
+    /// written to the database.
+    /// </returns>
     /// <remarks>
     /// This method should be called to persist changes.
     /// </remarks>
-    public async Task SaveAsync(CancellationToken cancellationToken = default)
-    {
-        await Context.SaveChangesAsync(cancellationToken);
-    }
+    public Task<int> SaveAsync(CancellationToken cancellationToken = default)
+        => Context.SaveChangesAsync(cancellationToken);
 
     /// <summary>
     /// The typical "Dispose Pattern" implementation.
@@ -131,5 +132,9 @@ public class EfUnitOfWork<TContext>(TContext context) : IEfUnitOfWork<TContext>,
         _disposed = true;
     }
 
+    /// <summary>
+    /// The typical "Dispose Pattern" implementation.
+    /// https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/dispose-pattern
+    /// </summary>
     ~EfUnitOfWork() => Dispose(false);
 }

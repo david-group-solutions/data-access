@@ -253,5 +253,9 @@ public class AdoNetUnitOfWork(string connectionString) : IAdoNetUnitOfWork, IDis
         _transaction = null;
     }
 
+    /// <summary>
+    /// The typical "Dispose Pattern" implementation.
+    /// https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/dispose-pattern
+    /// </summary>
     ~AdoNetUnitOfWork() => Dispose(false);
 }

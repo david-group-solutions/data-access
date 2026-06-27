@@ -26,7 +26,7 @@ public interface IEfUnitOfWork<out TContext> : IBaseUnitOfWork
     /// entity changes, executing queries, and managing persistence.
     /// </remarks>
     TContext Context { get; }
-    
+
     /// <summary>
     /// Gets the currently active database transaction if one exists.
     /// </summary>
@@ -40,9 +40,12 @@ public interface IEfUnitOfWork<out TContext> : IBaseUnitOfWork
     /// Saves all pending changes tracked by the current <see cref="DbContext"/> to the database asynchronously.
     /// </summary>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
-    /// <returns>A task representing the asynchronous save operation.</returns>
+    /// <returns>
+    /// A task that represents the asynchronous save operation. The task result contains the number of state entries
+    /// written to the database.
+    /// </returns>
     /// <remarks>
     /// This method should be called to persist changes.
     /// </remarks>
-    Task SaveAsync(CancellationToken cancellationToken = default);
+    Task<int> SaveAsync(CancellationToken cancellationToken = default);
 }
