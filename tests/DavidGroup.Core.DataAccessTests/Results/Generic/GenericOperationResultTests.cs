@@ -75,7 +75,7 @@ public class GenericOperationResultTests : OperationResultTestsBase
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(()
                 => OperationResult<int>.Success(1, Error()));
 
-            Assert.Equal(ErrorMessages.SuccessfulOperationResultCannotContainAnyErrors, ex.Message);
+            Assert.Equal(OperationResultErrorMessages.SuccessfulOperationResultCannotContainAnyErrors, ex.Message);
         }
     }
 
@@ -260,7 +260,7 @@ public class GenericOperationResultTests : OperationResultTestsBase
                 int? _ = result;
             });
 
-            Assert.Equal(ErrorMessages.NoValue, ex.Message);
+            Assert.Equal(OperationResultErrorMessages.NoValue, ex.Message);
         }
 
         [Fact]
@@ -275,7 +275,7 @@ public class GenericOperationResultTests : OperationResultTestsBase
                 string _ = result;
             });
 
-            Assert.Equal(ErrorMessages.NoValue, ex.Message);
+            Assert.Equal(OperationResultErrorMessages.NoValue, ex.Message);
         }
     }
 
@@ -353,7 +353,7 @@ public class GenericOperationResultTests : OperationResultTestsBase
 
             // Assert
             Assert.Single(result.Messages);
-            Assert.Equal(ErrorMessages.NoValue, result.Messages[0].Message);
+            Assert.Equal(OperationResultErrorMessages.NoValue, result.Messages[0].Message);
             Assert.Equal(OperationResultSeverity.Error, result.Messages[0].Severity);
         }
     }

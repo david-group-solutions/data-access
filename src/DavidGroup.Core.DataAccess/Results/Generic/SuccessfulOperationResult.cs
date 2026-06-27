@@ -21,7 +21,7 @@ public sealed record SuccessfulOperationResult<T> : OperationResult<T>
             throw new ArgumentNullException(nameof(value));
 
         if (HasErrors())
-            throw new InvalidOperationException(ErrorMessages.SuccessfulOperationResultCannotContainAnyErrors);
+            throw new InvalidOperationException(OperationResultErrorMessages.SuccessfulOperationResultCannotContainAnyErrors);
     }
 
     /// <summary>

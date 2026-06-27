@@ -54,7 +54,7 @@ public abstract record OperationResult<T> : OperationResult
     /// <exception cref="InvalidOperationException">Thrown if <see cref="Value"/> is null.</exception>
     public static implicit operator T(OperationResult<T> result)
     {
-        return result.Value ?? throw new InvalidOperationException(ErrorMessages.NoValue);
+        return result.Value ?? throw new InvalidOperationException(OperationResultErrorMessages.NoValue);
     }
 
     /// <summary>
@@ -63,7 +63,7 @@ public abstract record OperationResult<T> : OperationResult
     public static implicit operator OperationResult<T>(T? value)
     {
         return value is null
-            ? Failure(new OperationResultMessage(ErrorMessages.NoValue, OperationResultSeverity.Error))
+            ? Failure(new OperationResultMessage(OperationResultErrorMessages.NoValue, OperationResultSeverity.Error))
             : Success(value);
     }
 }

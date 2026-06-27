@@ -13,7 +13,7 @@ public record PageOptions
     /// Must be greater than 0.
     /// </summary>
     [Required]
-    [Range(1, int.MaxValue, ErrorMessage = ErrorMessages.PageNumberShouldBeGreaterThanZero)]
+    [Range(1, int.MaxValue, ErrorMessage = PaginationErrorMessages.PageNumberShouldBeGreaterThanZero)]
     public int Page { get; init; }
 
     /// <summary>
@@ -21,7 +21,7 @@ public record PageOptions
     /// Must be between 1 and <see cref="MaxPageSizeAttribute"/>.
     /// </summary>
     [Required]
-    [Range(1, int.MaxValue, ErrorMessage = ErrorMessages.PageSizeShouldBeGreaterThanZero)]
+    [Range(1, int.MaxValue, ErrorMessage = PaginationErrorMessages.PageSizeShouldBeGreaterThanZero)]
     [MaxPageSize]
     public int Size { get; init; }
 

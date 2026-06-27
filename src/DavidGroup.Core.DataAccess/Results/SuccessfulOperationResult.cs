@@ -20,7 +20,7 @@ public sealed record SuccessfulOperationResult : OperationResult
         : base(messages)
     {
         if (HasErrors())
-            throw new InvalidOperationException(ErrorMessages.SuccessfulOperationResultCannotContainAnyErrors);
+            throw new InvalidOperationException(OperationResultErrorMessages.SuccessfulOperationResultCannotContainAnyErrors);
     }
 
     /// <summary>

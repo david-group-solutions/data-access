@@ -23,7 +23,7 @@ public class MaxPageSizeAttribute : ValidationAttribute
         if (max <= 0) max = 100;
 
         if (value is int size && size > max)
-            return new ValidationResult($"{ErrorMessages.PageSizeShouldNotExceedMaximum}={max}");
+            return new ValidationResult($"{PaginationErrorMessages.PageSizeShouldNotExceedMaximum}={max}");
 
         return ValidationResult.Success;
     }
