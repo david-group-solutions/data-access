@@ -40,6 +40,9 @@ public class EfUnitOfWork<TContext>(TContext context) : IEfUnitOfWork<TContext>,
     /// </remarks>
     public async Task CreateTransactionAsync(CancellationToken cancellationToken = default)
     {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(EfUnitOfWork<>));
+
         if (Transaction is not null)
             throw new InvalidOperationException("A transaction is already in progress.");
 
@@ -59,6 +62,9 @@ public class EfUnitOfWork<TContext>(TContext context) : IEfUnitOfWork<TContext>,
     /// </remarks>
     public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(EfUnitOfWork<>));
+
         if (Transaction is null)
             throw new InvalidOperationException("No active transaction to commit.");
 
@@ -81,6 +87,9 @@ public class EfUnitOfWork<TContext>(TContext context) : IEfUnitOfWork<TContext>,
     /// </remarks>
     public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
     {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(EfUnitOfWork<>));
+
         if (Transaction is null)
             throw new InvalidOperationException("No active transaction to rollback.");
 
@@ -101,8 +110,13 @@ public class EfUnitOfWork<TContext>(TContext context) : IEfUnitOfWork<TContext>,
     /// <remarks>
     /// This method should be called to persist changes.
     /// </remarks>
-    public Task<int> SaveAsync(CancellationToken cancellationToken = default)
-        => Context.SaveChangesAsync(cancellationToken);
+    public async Task<int> SaveAsync(CancellationToken cancellationToken = default)
+    {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(EfUnitOfWork<>));
+
+        return await Context.SaveChangesAsync(cancellationToken);
+    }
 
     /// <summary>
     /// The typical "Dispose Pattern" implementation.

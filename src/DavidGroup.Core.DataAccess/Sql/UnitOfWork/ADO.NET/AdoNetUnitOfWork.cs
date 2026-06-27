@@ -1,4 +1,5 @@
 using System.Data;
+using System.Data.Common;
 
 using Microsoft.Data.SqlClient;
 
@@ -7,31 +8,33 @@ namespace DavidGroup.Core.DataAccess.Sql.UnitOfWork.ADO.NET;
 /// <summary>
 /// An ADO.NET-based implementation of the Unit of Work pattern.
 /// </summary>
-public class AdoNetUnitOfWork(string connectionString) : IAdoNetUnitOfWork, IDisposable, IAsyncDisposable
+public class AdoNetUnitOfWork(Func<DbConnection> connectionFactory) : IAdoNetUnitOfWork, IDisposable, IAsyncDisposable
 {
-    private SqlConnection? _connection;
-    private SqlTransaction? _transaction;
+    private DbConnection? _connection;
+    private DbTransaction? _transaction;
 
     private bool _disposed = false;
 
     /// <summary>
-    /// Gets the active <see cref="SqlConnection"/> instance associated with the current unit of work.
+    /// Gets the active <see cref="DbConnection"/> instance associated with the current unit of work.
     /// </summary>
     /// <exception cref="InvalidOperationException">Thrown when no active connection found.</exception>
     /// <remarks>
     /// The connection is typically opened using <see cref="OpenConnectionAsync(CancellationToken)"/>.
     /// </remarks>
-    public SqlConnection Connection => _connection ?? throw new InvalidOperationException("Connection is not initialized.");
+    public DbConnection Connection => _connection
+                                      ?? throw new InvalidOperationException("Connection is not initialized.");
 
     /// <summary>
-    /// Gets the active <see cref="SqlTransaction"/> instance associated with the current unit of work.
+    /// Gets the active <see cref="DbTransaction"/> instance associated with the current unit of work.
     /// </summary>
     /// <exception cref="InvalidOperationException">Thrown when no active transaction found.</exception>
     /// <remarks>
     /// The transaction is created when <see cref="CreateTransactionAsync(CancellationToken)"/> is called.
     /// It can be committed or rolled back using the corresponding methods from the base interface.
     /// </remarks>
-    public SqlTransaction Transaction => _transaction ?? throw new InvalidOperationException("Transaction is not initialized.");
+    public DbTransaction Transaction => _transaction
+                                        ?? throw new InvalidOperationException("Transaction is not initialized.");
 
     /// <summary>
     /// Opens a new SQL database connection asynchronously if it is not already open.
@@ -42,12 +45,15 @@ public class AdoNetUnitOfWork(string connectionString) : IAdoNetUnitOfWork, IDis
     /// This method ensures that the <see cref="Connection"/> is available for executing commands.
     /// Calling this method multiple times will have no effect if the connection is already open.
     /// </remarks>
-    public async Task OpenConnectionAsync(CancellationToken cancellationToken)
+    public async Task OpenConnectionAsync(CancellationToken cancellationToken = default)
     {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(AdoNetUnitOfWork));
+
         if (_connection == null || _connection.State == ConnectionState.Broken)
         {
             _connection?.Dispose();
-            _connection = new SqlConnection(connectionString);
+            _connection = connectionFactory.Invoke();
         }
 
         if (_connection.State != ConnectionState.Open)
@@ -99,12 +105,15 @@ public class AdoNetUnitOfWork(string connectionString) : IAdoNetUnitOfWork, IDis
     /// </example>
     public async Task ExecuteAsync(Func<Task> action, CancellationToken cancellationToken = default)
     {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(AdoNetUnitOfWork));
+
         if (_transaction is not null)
             throw new InvalidOperationException("A transaction is already in progress.");
 
         await OpenConnectionAsync(cancellationToken);
 
-        _transaction = (SqlTransaction)await _connection!.BeginTransactionAsync(cancellationToken);
+        _transaction = await _connection!.BeginTransactionAsync(cancellationToken);
 
         try
         {
@@ -139,12 +148,15 @@ public class AdoNetUnitOfWork(string connectionString) : IAdoNetUnitOfWork, IDis
     /// </remarks>
     public async Task CreateTransactionAsync(CancellationToken cancellationToken = default)
     {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(AdoNetUnitOfWork));
+
         if (_transaction is not null)
             throw new InvalidOperationException("A transaction is already in progress.");
 
         await OpenConnectionAsync(cancellationToken);
 
-        _transaction = (SqlTransaction)await _connection!.BeginTransactionAsync(cancellationToken);
+        _transaction = await _connection!.BeginTransactionAsync(cancellationToken);
     }
 
     /// <summary>
@@ -160,6 +172,9 @@ public class AdoNetUnitOfWork(string connectionString) : IAdoNetUnitOfWork, IDis
     /// </remarks>
     public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(AdoNetUnitOfWork));
+
         if (_transaction is null)
             throw new InvalidOperationException("No active transaction to commit.");
 
@@ -182,6 +197,9 @@ public class AdoNetUnitOfWork(string connectionString) : IAdoNetUnitOfWork, IDis
     /// </remarks>
     public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
     {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(AdoNetUnitOfWork));
+
         if (_transaction is null)
             throw new InvalidOperationException("No active transaction to rollback.");
 
