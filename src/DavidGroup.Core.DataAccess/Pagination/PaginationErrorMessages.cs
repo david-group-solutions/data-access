@@ -3,7 +3,7 @@ namespace DavidGroup.Core.DataAccess.Pagination;
 /// <summary>
 /// Pagination errors messages
 /// </summary>
-public static class ErrorMessages
+public static class PaginationErrorMessages
 {
     /// <summary>
     /// Used when page number is less or equals to zero

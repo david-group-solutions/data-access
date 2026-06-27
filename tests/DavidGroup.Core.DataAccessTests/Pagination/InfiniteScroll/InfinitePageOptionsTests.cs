@@ -92,7 +92,7 @@ public static class InfinitePageOptionsTests
             ArgumentException ex = Assert.Throws<ArgumentException>(() =>
                 new InfinitePageOptions(0, SomeCursor()));
 
-            Assert.Contains(ErrorMessages.PageSizeShouldBeGreaterThanZero, ex.Message);
+            Assert.Contains(PaginationErrorMessages.PageSizeShouldBeGreaterThanZero, ex.Message);
         }
     }
 
@@ -175,7 +175,7 @@ public static class InfinitePageOptionsTests
             ArgumentException ex = Assert.Throws<ArgumentException>(() =>
                 new InfinitePageOptions(0, "token"));
 
-            Assert.Contains(ErrorMessages.PageSizeShouldBeGreaterThanZero, ex.Message);
+            Assert.Contains(PaginationErrorMessages.PageSizeShouldBeGreaterThanZero, ex.Message);
         }
     }
 
@@ -202,7 +202,7 @@ public static class InfinitePageOptionsTests
             Assert.DoesNotContain(results, r =>
                 r.MemberNames.Contains(nameof(InfinitePageOptions.Size)));
             Assert.DoesNotContain(results, r =>
-                r.ErrorMessage == ErrorMessages.PageSizeShouldBeGreaterThanZero);
+                r.ErrorMessage == PaginationErrorMessages.PageSizeShouldBeGreaterThanZero);
         }
 
         [Theory]
@@ -221,7 +221,7 @@ public static class InfinitePageOptionsTests
             Assert.Contains(results, r =>
                 r.MemberNames.Contains(nameof(InfinitePageOptions.Size)));
             Assert.Contains(results, r =>
-                r.ErrorMessage == ErrorMessages.PageSizeShouldBeGreaterThanZero);
+                r.ErrorMessage == PaginationErrorMessages.PageSizeShouldBeGreaterThanZero);
         }
 
         [Theory]
@@ -237,7 +237,7 @@ public static class InfinitePageOptionsTests
 
             // Assert
             Assert.NotEmpty(results);
-            Assert.Contains(results, r => r.ErrorMessage!.Equals($"{ErrorMessages.PageSizeShouldNotExceedMaximum}=100"));
+            Assert.Contains(results, r => r.ErrorMessage!.Equals($"{PaginationErrorMessages.PageSizeShouldNotExceedMaximum}=100"));
         }
     }
 

@@ -55,7 +55,7 @@ public static class PageOptionsTests
 
             // Assert
             Assert.Contains(results, r => r.MemberNames.Contains(nameof(PageOptions.Page)));
-            Assert.Contains(results, r => r.ErrorMessage!.Equals(ErrorMessages.PageNumberShouldBeGreaterThanZero));
+            Assert.Contains(results, r => r.ErrorMessage!.Equals(PaginationErrorMessages.PageNumberShouldBeGreaterThanZero));
         }
 
         [Theory]
@@ -71,7 +71,7 @@ public static class PageOptionsTests
 
             // Assert
             Assert.Contains(results, r => r.MemberNames.Contains(nameof(PageOptions.Size)));
-            Assert.Contains(results, r => r.ErrorMessage!.Equals(ErrorMessages.PageSizeShouldBeGreaterThanZero));
+            Assert.Contains(results, r => r.ErrorMessage!.Equals(PaginationErrorMessages.PageSizeShouldBeGreaterThanZero));
         }
 
         [Fact]
@@ -84,7 +84,7 @@ public static class PageOptionsTests
             IList<ValidationResult> results = Validate(options);
 
             // Assert
-            Assert.Contains(results, r => r.ErrorMessage!.Equals($"{ErrorMessages.PageSizeShouldNotExceedMaximum}=100"));
+            Assert.Contains(results, r => r.ErrorMessage!.Equals($"{PaginationErrorMessages.PageSizeShouldNotExceedMaximum}=100"));
         }
     }
 
@@ -138,7 +138,7 @@ public static class PageOptionsTests
             IList<ValidationResult> results = Validate(options, config);
 
             // Assert
-            Assert.Contains(results, r => r.ErrorMessage!.Equals($"{ErrorMessages.PageSizeShouldNotExceedMaximum}=50"));
+            Assert.Contains(results, r => r.ErrorMessage!.Equals($"{PaginationErrorMessages.PageSizeShouldNotExceedMaximum}=50"));
         }
 
         [Fact]
@@ -168,7 +168,7 @@ public static class PageOptionsTests
             IList<ValidationResult> results = Validate(options, config);
 
             // Assert
-            Assert.Contains(results, r => r.ErrorMessage!.Equals($"{ErrorMessages.PageSizeShouldNotExceedMaximum}=100"));
+            Assert.Contains(results, r => r.ErrorMessage!.Equals($"{PaginationErrorMessages.PageSizeShouldNotExceedMaximum}=100"));
         }
 
         [Theory]
@@ -192,7 +192,7 @@ public static class PageOptionsTests
             else
             {
                 Assert.NotEmpty(results);
-                Assert.Contains(results, r => r.ErrorMessage!.Equals($"{ErrorMessages.PageSizeShouldNotExceedMaximum}={configuredMax}"));
+                Assert.Contains(results, r => r.ErrorMessage!.Equals($"{PaginationErrorMessages.PageSizeShouldNotExceedMaximum}={configuredMax}"));
             }
         }
     }

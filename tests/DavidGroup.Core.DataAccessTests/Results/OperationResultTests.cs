@@ -62,7 +62,7 @@ public class OperationResultTests : OperationResultTestsBase
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(()
                 => OperationResult.Success(Error()));
 
-            Assert.Equal(ErrorMessages.SuccessfulOperationResultCannotContainAnyErrors, ex.Message);
+            Assert.Equal(OperationResultErrorMessages.SuccessfulOperationResultCannotContainAnyErrors, ex.Message);
         }
     }
 

@@ -14,7 +14,7 @@ public record InfinitePageOptions
     /// Gets the number of items per page. Must be between 1 and 100.
     /// </summary>
     [Required]
-    [Range(1, int.MaxValue, ErrorMessage = ErrorMessages.PageSizeShouldBeGreaterThanZero)]
+    [Range(1, int.MaxValue, ErrorMessage = PaginationErrorMessages.PageSizeShouldBeGreaterThanZero)]
     [MaxPageSize]
     public int Size { get; init; }
 
@@ -47,7 +47,7 @@ public record InfinitePageOptions
     public InfinitePageOptions(int size, DynamicCursor? searchAfter)
     {
         if (size <= 0)
-            throw new ArgumentException(ErrorMessages.PageSizeShouldBeGreaterThanZero, nameof(size));
+            throw new ArgumentException(PaginationErrorMessages.PageSizeShouldBeGreaterThanZero, nameof(size));
 
         Size = size;
         SearchAfter = searchAfter;
@@ -62,7 +62,7 @@ public record InfinitePageOptions
     public InfinitePageOptions(int size, string? searchAfterToken)
     {
         if (size <= 0)
-            throw new ArgumentException(ErrorMessages.PageSizeShouldBeGreaterThanZero, nameof(size));
+            throw new ArgumentException(PaginationErrorMessages.PageSizeShouldBeGreaterThanZero, nameof(size));
 
         Size = size;
         SearchAfterToken = searchAfterToken;

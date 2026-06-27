@@ -3,7 +3,7 @@ namespace DavidGroup.Core.DataAccess.Results;
 /// <summary>
 /// Error message for OperationResult
 /// </summary>
-public class ErrorMessages
+public static class OperationResultErrorMessages
 {
     /// <summary>
     /// Successful operation result cannot contain any errors.
