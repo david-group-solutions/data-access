@@ -14,6 +14,6 @@
     <Project Path="src/DavidGroup.Core.DataAccess/DavidGroup.Core.DataAccess.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/DavidGroup.Core.DataAccessTests/DavidGroup.Core.DataAccessTests.csproj" />
+    <Project Path="tests/DavidGroup.Core.DataAccess.Tests/DavidGroup.Core.DataAccess.Tests.csproj" />
   </Folder>
 </Solution>
