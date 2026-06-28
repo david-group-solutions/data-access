@@ -1,6 +1,6 @@
 using DavidGroup.Core.DataAccess.Results;
 
-namespace DavidGroup.Core.DataAccessTests.Results;
+namespace DavidGroup.Core.DataAccess.Tests.Results;
 
 public class SuccessfulOperationResultTests : OperationResultTestsBase
 {

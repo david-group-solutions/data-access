@@ -1,6 +1,6 @@
 using DavidGroup.Core.DataAccess.Sql.Interceptors;
 
-namespace DavidGroup.Core.DataAccessTests.Sql.Interceptors;
+namespace DavidGroup.Core.DataAccess.Tests.Sql.Interceptors;
 
 public class TimedEntitiesInterceptorTests
 {

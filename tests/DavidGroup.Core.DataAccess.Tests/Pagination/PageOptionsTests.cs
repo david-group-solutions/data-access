@@ -6,7 +6,7 @@ using DavidGroup.Core.DataAccess.Pagination;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DavidGroup.Core.DataAccessTests.Pagination;
+namespace DavidGroup.Core.DataAccess.Tests.Pagination;
 
 public static class PageOptionsTests
 {

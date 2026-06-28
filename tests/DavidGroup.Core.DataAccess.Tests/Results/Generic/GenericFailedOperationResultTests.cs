@@ -1,7 +1,7 @@
 using DavidGroup.Core.DataAccess.Results;
 using DavidGroup.Core.DataAccess.Results.Generic;
 
-namespace DavidGroup.Core.DataAccessTests.Results.Generic;
+namespace DavidGroup.Core.DataAccess.Tests.Results.Generic;
 
 public class GenericFailedOperationResultTests : OperationResultTestsBase
 {

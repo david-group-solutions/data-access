@@ -4,7 +4,7 @@ using System.Text.Json;
 using DavidGroup.Core.DataAccess.Pagination;
 using DavidGroup.Core.DataAccess.Pagination.InfiniteScroll;
 
-namespace DavidGroup.Core.DataAccessTests.Pagination.InfiniteScroll;
+namespace DavidGroup.Core.DataAccess.Tests.Pagination.InfiniteScroll;
 
 public static class InfinitePageOptionsTests
 {
