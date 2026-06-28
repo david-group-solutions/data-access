@@ -5,7 +5,7 @@ using Elastic.Clients.Elasticsearch;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DavidGroup.Core.DataAccessTests.ElasticSearch;
+namespace DavidGroup.Core.DataAccess.Tests.ElasticSearch;
 
 public class ServiceCollectionExtensionsTests
 {

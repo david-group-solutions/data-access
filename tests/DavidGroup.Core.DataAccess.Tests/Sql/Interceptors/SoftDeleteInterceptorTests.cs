@@ -3,7 +3,7 @@ using DavidGroup.Core.DataAccess.Sql.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace DavidGroup.Core.DataAccessTests.Sql.Interceptors;
+namespace DavidGroup.Core.DataAccess.Tests.Sql.Interceptors;
 
 public class SoftDeleteInterceptorTests
 {

@@ -5,7 +5,7 @@ using DavidGroup.Core.DataAccess.Sql.UnitOfWork.ADO.NET;
 
 using Microsoft.Data.Sqlite;
 
-namespace DavidGroup.Core.DataAccessTests.Sql.UnitOfWork.ADO.NET;
+namespace DavidGroup.Core.DataAccess.Tests.Sql.UnitOfWork.ADO.NET;
 
 public class AdoNetUnitOfWorkTests
 {

@@ -2,7 +2,7 @@ using DavidGroup.Core.DataAccess.Sql.Entities;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace DavidGroup.Core.DataAccessTests.Sql.Interceptors;
+namespace DavidGroup.Core.DataAccess.Tests.Sql.Interceptors;
 
 public class SoftDeletableEntity : ISoftDeletable
 {

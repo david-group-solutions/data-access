@@ -1,6 +1,6 @@
 using DavidGroup.Core.DataAccess.Pagination;
 
-namespace DavidGroup.Core.DataAccessTests.Pagination;
+namespace DavidGroup.Core.DataAccess.Tests.Pagination;
 
 public static class PaginationExtensionsTests
 {

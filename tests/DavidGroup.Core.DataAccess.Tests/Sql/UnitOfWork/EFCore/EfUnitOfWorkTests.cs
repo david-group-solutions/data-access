@@ -4,7 +4,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace DavidGroup.Core.DataAccessTests.Sql.UnitOfWork.EFCore;
+namespace DavidGroup.Core.DataAccess.Tests.Sql.UnitOfWork.EFCore;
 
 public class EfUnitOfWorkTests
 {

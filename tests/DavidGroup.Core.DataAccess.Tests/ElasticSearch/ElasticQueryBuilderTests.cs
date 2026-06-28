@@ -4,7 +4,7 @@ using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Core.Search;
 using Elastic.Clients.Elasticsearch.QueryDsl;
 
-namespace DavidGroup.Core.DataAccessTests.ElasticSearch;
+namespace DavidGroup.Core.DataAccess.Tests.ElasticSearch;
 
 public static class ElasticQueryBuilderTests
 {
