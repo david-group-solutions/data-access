@@ -11,10 +11,6 @@
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
 
-        <!-- The condition is required to support BenchmarkDotNet -->
-        <SignAssembly Condition="Exists('$(MSBuildThisFileDirectory)assets/DavidGroupSolutions.snk')">true</SignAssembly>
-        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)assets/DavidGroupSolutions.snk</AssemblyOriginatorKeyFile>
-
         <GenerateDocumentationFile Condition="!$(MSBuildProjectName.EndsWith('Tests'))">true</GenerateDocumentationFile>
 
         <!-- Enable debugging and diagnostics with Source Link. See these for more information:
