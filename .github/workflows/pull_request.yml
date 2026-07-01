@@ -1,0 +1,89 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches: [ "main", "dev" ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true 
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+              8.0.x
+              9.0.x
+              10.0.x
+
+      - name: Build
+        working-directory: ./
+        run: dotnet build -c Release /p:ContinuousIntegrationBuild=true
+
+  test:
+    name: Tests on ${{ matrix.os }}
+    needs: [ build ]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-26, ubuntu-latest, windows-latest ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+              8.0.x
+              9.0.x
+              10.0.x
+
+      - name: Test
+        working-directory: ./
+        run: dotnet test --logger:trx --logger:GitHubActions
+
+  benchmark:
+    name: Run BenchmarkDotNet
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+ 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "10.0.x"
+ 
+      - name: Restore dependencies
+        run: dotnet restore --no-cache
+ 
+      - name: Build (Release)
+        run: dotnet build --configuration Release --no-restore
+ 
+      - name: Run benchmarks
+        run: |
+          dotnet run \
+            --project benchmarks/DavidGroup.Core.DataAccess.Benchmarks/DavidGroup.Core.DataAccess.Benchmarks.csproj \
+            --configuration Release \
+            --no-build \
+            -- \
+            --exporters json github html csv \
+            --artifacts BenchmarkResults \
+            -f '*'
+ 
+      - name: Upload benchmark results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: BenchmarkResults/
