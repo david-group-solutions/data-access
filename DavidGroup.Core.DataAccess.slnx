@@ -4,6 +4,9 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/DavidGroup.Core.DataAccess.Benchmarks/DavidGroup.Core.DataAccess.Benchmarks.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />
     <File Path="Directory.Version.props" />
