@@ -59,7 +59,8 @@ public static class ServiceCollectionExtensions
 
             options.AddInterceptors(
                 new TimedEntitiesInterceptor(),
-                new SoftDeleteInterceptor());
+                new SoftDeleteInterceptor()
+            );
         });
 
         return services;
@@ -157,7 +158,8 @@ public static class ServiceCollectionExtensions
         return services.AddImplementations(
             assembly ?? Assembly.GetExecutingAssembly(),
             typeof(IBaseRepository<,>),
-            typeof(IBaseAggregationRepository<>));
+            typeof(IBaseAggregationRepository<>)
+        );
     }
 
     /// <summary>
@@ -200,7 +202,8 @@ public static class ServiceCollectionExtensions
         return services.AddImplementations(
             assembly ?? Assembly.GetExecutingAssembly(),
             typeof(IBaseReadonlyService<,,>),
-            typeof(IBaseService<,,,,>));
+            typeof(IBaseService<,,,,>)
+        );
     }
 
     /// <summary>

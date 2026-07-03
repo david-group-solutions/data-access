@@ -92,6 +92,11 @@ public static class ServiceCollectionExtensions
     /// <typeparam name="TDbContext">
     /// The <see cref="DbContext"/> used by the Entity Framework outbox.
     /// </typeparam>
+    /// <param name="configureOutboxStore">
+    /// Configures the database-specific locking behavior for the Entity Framework transactional outbox
+    /// (e.g. <c>o => o.UseSqlServer()</c>, <c>o => o.UsePostgres()</c>, <c>o => o.UseMySql()</c>).
+    /// Required so the outbox setup isn't tied to a single database provider.
+    /// </param>
     /// <param name="configSectionKey">
     /// The configuration section key for binding <see cref="RabbitMqTransportOptions"/>.
     /// If not specified, the default section name <c>RabbitMqTransportOptions</c> is used.
