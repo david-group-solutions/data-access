@@ -27,6 +27,7 @@ public static class ServiceCollectionExtensions
                                  ?? throw new InvalidOperationException("No Elasticsearch connection string found.");
 
             SingleNodePool connectionPool = new(new Uri(connectionString));
+
             ElasticsearchClientSettings connectionSettings = new ElasticsearchClientSettings(connectionPool)
                 .RequestTimeout(TimeSpan.FromSeconds(10))
                 .MaximumRetries(5);
