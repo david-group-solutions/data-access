@@ -38,9 +38,7 @@ public static class DistributedCacheExtensions
     {
         byte[] bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(value, SerializerOptions));
 
-        return options is null
-            ? cache.SetAsync(key, bytes)
-            : cache.SetAsync(key, bytes, options);
+        return cache.SetAsync(key, bytes, options ?? new DistributedCacheEntryOptions());
     }
 
     /// <summary>
