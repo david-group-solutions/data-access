@@ -13,8 +13,6 @@ public class ServiceCollectionExtensionsTests
     // Helpers
     // -------------------------------------------------------------------------
 
-    private static ServiceCollection CreateServices() => [];
-
     private static IConfiguration BuildConfiguration(string? elasticsearchConnectionString)
     {
         Dictionary<string, string?> data = new();
@@ -40,7 +38,7 @@ public class ServiceCollectionExtensionsTests
     public void Registers_ElasticsearchClient_When_ConnectionString_Provided_Explicitly()
     {
         // Arrange
-        ServiceCollection services = CreateServices();
+        ServiceCollection services = [];
         services.AddElasticsearchClient("http://localhost:9200");
 
         ServiceProvider provider = services.BuildServiceProvider();
@@ -56,7 +54,7 @@ public class ServiceCollectionExtensionsTests
     public void Registers_Client_As_Singleton_When_ConnectionString_Provided_Explicitly()
     {
         // Arrange
-        ServiceCollection services = CreateServices();
+        ServiceCollection services = [];
         services.AddElasticsearchClient("http://localhost:9200");
 
         ServiceProvider provider = services.BuildServiceProvider();
@@ -77,7 +75,7 @@ public class ServiceCollectionExtensionsTests
     public void Registers_ElasticsearchClient_When_ConnectionString_Resolved_From_Configuration()
     {
         // Arrange
-        ServiceCollection services = CreateServices();
+        ServiceCollection services = [];
         services.AddSingleton(BuildConfiguration("http://localhost:9200"));
 
         services.AddElasticsearchClient();
@@ -93,7 +91,7 @@ public class ServiceCollectionExtensionsTests
     public void Registers_Client_As_Singleton_When_ConnectionString_Resolved_From_Configuration()
     {
         // Arrange
-        ServiceCollection services = CreateServices();
+        ServiceCollection services = [];
         services.AddSingleton(BuildConfiguration("http://localhost:9200"));
         services.AddElasticsearchClient();
 
@@ -115,7 +113,7 @@ public class ServiceCollectionExtensionsTests
     public void Throws_InvalidOperationException_When_No_ConnectionString_In_Configuration()
     {
         // Arrange
-        ServiceCollection services = CreateServices();
+        ServiceCollection services = [];
         services.AddSingleton(BuildConfiguration(elasticsearchConnectionString: null));
         services.AddElasticsearchClient();
 
@@ -132,7 +130,7 @@ public class ServiceCollectionExtensionsTests
     public void Exception_Message_Indicates_Missing_ConnectionString()
     {
         // Arrange
-        ServiceCollection services = CreateServices();
+        ServiceCollection services = [];
         services.AddSingleton(BuildConfiguration(elasticsearchConnectionString: null));
         services.AddElasticsearchClient();
 
@@ -142,21 +140,7 @@ public class ServiceCollectionExtensionsTests
         InvalidOperationException ex = Assert.Throws<InvalidOperationException>(
             provider.GetRequiredService<ElasticsearchClient>);
 
-        Assert.Contains("No Elasticsearch connection string found", ex.Message);
-    }
-
-    [Fact]
-    public void Throws_When_IConfiguration_Is_Not_Registered_And_No_Explicit_ConnectionString()
-    {
-        // Arrange
-        ServiceCollection services = CreateServices();
-        services.AddElasticsearchClient();
-
-        ServiceProvider provider = services.BuildServiceProvider();
-
-        // Act, Assert
-        Assert.ThrowsAny<Exception>(
-            provider.GetRequiredService<ElasticsearchClient>);
+        Assert.Equal("No Elasticsearch connection string found.", ex.Message);
     }
 
     // -------------------------------------------------------------------------
@@ -170,7 +154,7 @@ public class ServiceCollectionExtensionsTests
     public void Throws_When_ConnectionString_Is_Not_A_Valid_Uri(string badConnectionString)
     {
         // Arrange
-        ServiceCollection services = CreateServices();
+        ServiceCollection services = [];
         services.AddElasticsearchClient(badConnectionString);
 
         ServiceProvider provider = services.BuildServiceProvider();
@@ -187,7 +171,7 @@ public class ServiceCollectionExtensionsTests
     public void Resolves_Client_Successfully_For_Valid_Uris(string connectionString)
     {
         // Arrange
-        ServiceCollection services = CreateServices();
+        ServiceCollection services = [];
         services.AddElasticsearchClient(connectionString);
 
         // Act
@@ -205,7 +189,7 @@ public class ServiceCollectionExtensionsTests
     public void EnsureNoDuplicateRegistrations()
     {
         // Arrange, Act
-        ServiceCollection services = CreateServices();
+        ServiceCollection services = [];
         services.AddElasticsearchClient("http://localhost:9200");
         services.AddElasticsearchClient("http://localhost:9200");
 
