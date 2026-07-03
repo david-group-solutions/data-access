@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 using RedLockNet;
@@ -24,7 +25,7 @@ public static class ServiceCollectionExtensions
     /// <exception cref="InvalidOperationException">Thrown if the Redis connection string cannot be resolved.</exception>
     public static IServiceCollection AddRedis(this IServiceCollection services, string? connectionString = null)
     {
-        return services.AddSingleton<IConnectionMultiplexer>(sp =>
+        services.TryAddSingleton<IConnectionMultiplexer>(sp =>
         {
             connectionString ??= sp.GetRequiredService<IConfiguration>().GetConnectionString("Redis")
                                  ?? throw new InvalidOperationException("No redis connection string found.");
@@ -33,6 +34,8 @@ public static class ServiceCollectionExtensions
 
             return redis;
         });
+
+        return services;
     }
 
     /// <summary>
@@ -100,6 +103,8 @@ public static class ServiceCollectionExtensions
 
         RedLockFactory? redLockFactory = RedLockFactory.Create(multiplexers);
 
-        return services.AddSingleton<IDistributedLockFactory>(redLockFactory);
+        services.TryAddSingleton<IDistributedLockFactory>(redLockFactory);
+
+        return services;
     }
 }
