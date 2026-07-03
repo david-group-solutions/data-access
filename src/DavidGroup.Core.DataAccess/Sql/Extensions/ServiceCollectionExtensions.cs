@@ -10,6 +10,7 @@ using DavidGroup.Core.DataAccess.Sql.UnitOfWork.EFCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Scrutor;
 
@@ -115,8 +116,10 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddEfUnitOfWork<TDbContext>(this IServiceCollection services)
         where TDbContext : DbContext
     {
-        return services.AddScoped<IEfUnitOfWork<TDbContext>>(sp
+        services.TryAddScoped<IEfUnitOfWork<TDbContext>>(sp
             => new EfUnitOfWork<TDbContext>(sp.GetRequiredService<TDbContext>()));
+
+        return services;
     }
 
     /// <summary>
@@ -134,8 +137,10 @@ public static class ServiceCollectionExtensions
     /// <exception cref="InvalidOperationException">Thrown if the connection string cannot be resolved.</exception>
     public static IServiceCollection AddAdoUnitOfWork(this IServiceCollection services, Func<DbConnection> connectionFactory)
     {
-        return services.AddScoped<IAdoNetUnitOfWork>(_
+        services.TryAddScoped<IAdoNetUnitOfWork>(_
             => new AdoNetUnitOfWork(connectionFactory));
+
+        return services;
     }
 
     /// <summary>
