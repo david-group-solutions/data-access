@@ -115,6 +115,9 @@ public record OrderingSpecification<TEntity>(
     public static IOrderedQueryable<TEntity> Apply(IQueryable<TEntity> query,
         IReadOnlyList<OrderingSpecification<TEntity>> orderBySpecifications)
     {
+        if (orderBySpecifications.Count == 0)
+            throw new InvalidOperationException("No ordering specifications were found.");
+
         IOrderedQueryable<TEntity> ordered = null!;
 
         for (int i = 0; i < orderBySpecifications.Count; i++)
