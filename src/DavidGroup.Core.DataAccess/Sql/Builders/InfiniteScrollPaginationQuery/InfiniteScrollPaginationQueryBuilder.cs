@@ -63,8 +63,8 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity>(IQueryable<TEntity> q
     /// previous page.
     /// </param>
     /// <param name="orderingSpecifications">
-    /// The ordered list of ordering specifications that define the sort order used for
-    /// cursor generation and search-after filtering. At least one ordering specification
+    /// The list of ordering specifications that define the sort order.
+    /// At least one ordering specification
     /// must be provided.
     /// </param>
     /// <param name="selector">
@@ -130,7 +130,7 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity>(IQueryable<TEntity> q
         if (hasMore)
         {
             nextCursor = await InfiniteScrollPaginationDynamicCursorBuilder.BuildNextCursorAsync(
-                pageOptions.Size, orderingSpecifications.Select(s => s.OrderBy), Query, cancellationToken);
+                Query, orderingSpecifications.Select(spec => spec.OrderBy), pageOptions.Size, cancellationToken);
         }
 
         return new InfinitePageData<TResult>(
