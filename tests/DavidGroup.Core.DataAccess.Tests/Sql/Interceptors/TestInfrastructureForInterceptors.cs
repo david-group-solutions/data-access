@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DavidGroup.Core.DataAccess.Tests.Sql.Interceptors;
 
-public class SoftDeletableEntity : ISoftDeletable
+internal class SoftDeletableEntity : ISoftDeletable
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -12,7 +12,7 @@ public class SoftDeletableEntity : ISoftDeletable
     public bool IsDeleted { get; set; }
 }
 
-public class TimedEntity : ITimedEntity
+internal class TimedEntity : ITimedEntity
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -21,7 +21,7 @@ public class TimedEntity : ITimedEntity
     public DateTime ModifiedAtUtc { get; set; }
 }
 
-public class FullEntity : ISoftDeletable, ITimedEntity
+internal class FullEntity : ISoftDeletable, ITimedEntity
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -32,7 +32,7 @@ public class FullEntity : ISoftDeletable, ITimedEntity
     public DateTime ModifiedAtUtc { get; set; }
 }
 
-public class TestDbContext(DbContextOptions<TestDbContext> options) : DbContext(options)
+internal class TestDbContext(DbContextOptions<TestDbContext> options) : DbContext(options)
 {
     public DbSet<SoftDeletableEntity> SoftDeletables => Set<SoftDeletableEntity>();
     public DbSet<TimedEntity> TimedEntities => Set<TimedEntity>();
