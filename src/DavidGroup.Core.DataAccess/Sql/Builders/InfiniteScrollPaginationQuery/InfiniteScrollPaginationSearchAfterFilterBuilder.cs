@@ -28,6 +28,9 @@ public static class InfiniteScrollPaginationSearchAfterFilterBuilder
         IReadOnlyList<OrderingSpecification<TEntity>> orderingSpecifications,
         DynamicCursor lastCursor) where TEntity : class
     {
+        if (orderingSpecifications.Count == 0)
+            throw new InvalidOperationException("No ordering specifications were found.");
+
         ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "e");
         Expression? filter = null;
 
