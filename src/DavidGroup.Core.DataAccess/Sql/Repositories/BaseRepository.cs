@@ -104,6 +104,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
             .WithProjection(selector);
 
         int count = await builder.Query.CountAsync(cancellationToken);
+
         List<TResult> entities = await builder.WithOffsetPagination(options).Query.ToListAsync(cancellationToken);
 
         return new PageData<TResult>(entities, count, options);
@@ -146,6 +147,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
             .WithProjection(selector);
 
         int count = await builder.Query.CountAsync(cancellationToken);
+
         List<TResult> entities = await builder.WithOffsetPagination(options).Query.ToListAsync(cancellationToken);
 
         return new PageData<TResult>(entities, count, options);
