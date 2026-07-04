@@ -17,30 +17,31 @@ public static class InfiniteScrollPaginationDynamicCursorBuilder
     /// Builds the <see cref="DynamicCursor"/> for the next page of an infinite scroll query.
     /// </summary>
     /// <typeparam name="TEntity">The entity type being queried.</typeparam>
-    /// <param name="pageSize">Pagination option that specifies page size.</param>
-    /// <param name="orderBy">
-    /// A collection of expressions defining the order of the query.
-    /// Each expression should correspond to a sortable entity property.
-    /// </param>
     /// <param name="ordered">
     /// The <see cref="IQueryable{T}"/> representing the already sorted query.
     /// The cursor will be built from the last item in the current page.
     /// </param>
+    /// <param name="orderedWith">
+    /// A collection of expressions defining the order of the query.
+    /// Used to determine the selector of the cursor values.
+    /// Direction does not matter because query is already ordered.
+    /// </param>
+    /// <param name="pageSize">Pagination option that specifies page size.</param>
     /// <param name="cancellationToken">A token to observe for cancellation.</param>
     /// <returns>
     /// A <see cref="DynamicCursor"/> representing the key values of the next page.
     /// </returns>
     public static async Task<DynamicCursor> BuildNextCursorAsync<TEntity>(
-        int pageSize,
-        IEnumerable<Expression<Func<TEntity, object>>> orderBy,
         IQueryable<TEntity> ordered,
+        IEnumerable<Expression<Func<TEntity, object>>> orderedWith,
+        int pageSize,
         CancellationToken cancellationToken = default)
     {
         ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "e");
 
         NewArrayExpression nextCursorExpr = Expression.NewArrayInit(
             typeof(object),
-            orderBy.Select(o =>
+            orderedWith.Select(o =>
             {
                 Expression body = o.Body is UnaryExpression { NodeType: ExpressionType.Convert } unary
                     ? unary.Operand
