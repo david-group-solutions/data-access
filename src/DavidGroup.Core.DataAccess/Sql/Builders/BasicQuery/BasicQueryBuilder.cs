@@ -103,7 +103,7 @@ public class BasicQueryBuilder<TEntity>(IQueryable<TEntity> query)
     /// <returns>The current <see cref="BasicQueryBuilder{TEntity}"/> instance for chaining.</returns>
     public BasicQueryBuilder<TEntity> WithOrdering(IReadOnlyList<OrderingSpecification<TEntity>>? orderingSpecifications)
     {
-        if (orderingSpecifications != null)
+        if (orderingSpecifications != null && orderingSpecifications.Count > 0)
             Query = OrderingSpecification<TEntity>.Apply(Query, orderingSpecifications);
 
         return this;
