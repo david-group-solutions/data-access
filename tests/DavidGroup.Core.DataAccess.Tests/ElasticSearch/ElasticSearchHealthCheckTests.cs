@@ -11,7 +11,7 @@ using HealthStatus = Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus;
 
 namespace DavidGroup.Core.DataAccess.Tests.ElasticSearch;
 
-public class ElasticSearchHealthCheckTests
+public static class ElasticSearchHealthCheckTests
 {
     // -------------------------------------------------------------------------
     // Helpers
