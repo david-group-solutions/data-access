@@ -73,7 +73,8 @@ public abstract class BaseReadonlyService<TRepository, TEntity, TKey, TReadDto>(
 
         if (orderBy is null)
         {
-            result = await Repository.GetAllAsync(options,
+            result = await Repository.GetAllAsync(
+                options,
                 orderBy: null,
                 selector: ToReadDto,
                 cancellationToken: cancellationToken
