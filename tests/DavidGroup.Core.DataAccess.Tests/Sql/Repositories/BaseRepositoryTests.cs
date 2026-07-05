@@ -30,7 +30,6 @@ public static class BaseRepositoryTests
     private class RepoTestDbContext(DbContextOptions<RepoTestDbContext> options) : DbContext(options)
     {
         public DbSet<RepoTestEntity> Entities => Set<RepoTestEntity>();
-        public DbSet<RepoTestEntityAddress> EntityAddresses => Set<RepoTestEntityAddress>();
     }
 
     private sealed class RepoTestRepository(DbContext context) : BaseRepository<RepoTestEntity, int>(context);
