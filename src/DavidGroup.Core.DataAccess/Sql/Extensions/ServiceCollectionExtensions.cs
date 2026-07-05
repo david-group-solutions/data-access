@@ -46,7 +46,7 @@ public static class ServiceCollectionExtensions
         string? assemblyName = null)
         where TDbContext : DbContext
     {
-        assemblyName ??= Assembly.GetExecutingAssembly().GetName().Name!;
+        assemblyName ??= Assembly.GetCallingAssembly().GetName().Name!;
 
         services.AddDbContext<TDbContext>((sp, options) =>
         {
@@ -135,7 +135,7 @@ public static class ServiceCollectionExtensions
     /// The same <see cref="IServiceCollection"/> instance so that additional calls can be chained.
     /// </returns>
     /// <exception cref="InvalidOperationException">Thrown if the connection string cannot be resolved.</exception>
-    public static IServiceCollection AddAdoUnitOfWork(this IServiceCollection services, Func<DbConnection> connectionFactory)
+    public static IServiceCollection AddAdoNetUnitOfWork(this IServiceCollection services, Func<DbConnection> connectionFactory)
     {
         services.TryAddScoped<IAdoNetUnitOfWork>(_
             => new AdoNetUnitOfWork(connectionFactory));
@@ -161,7 +161,7 @@ public static class ServiceCollectionExtensions
         Assembly? assembly = null)
     {
         return services.AddImplementations(
-            assembly ?? Assembly.GetExecutingAssembly(),
+            assembly ?? Assembly.GetCallingAssembly(),
             typeof(IBaseRepository<,>),
             typeof(IBaseAggregationRepository<>)
         );
@@ -205,7 +205,7 @@ public static class ServiceCollectionExtensions
         Assembly? assembly = null)
     {
         return services.AddImplementations(
-            assembly ?? Assembly.GetExecutingAssembly(),
+            assembly ?? Assembly.GetCallingAssembly(),
             typeof(IBaseReadonlyService<,,>),
             typeof(IBaseService<,,,,>)
         );
@@ -259,7 +259,7 @@ public static class ServiceCollectionExtensions
             foreach (Type interfaceType in interfaceTypes)
             {
                 scanner = scanner
-                    .AddClasses(classes => classes.AssignableTo(interfaceType))
+                    .AddClasses(classes => classes.AssignableTo(interfaceType), publicOnly: false)
                     .AsImplementedInterfaces()
                     .WithScopedLifetime();
             }
