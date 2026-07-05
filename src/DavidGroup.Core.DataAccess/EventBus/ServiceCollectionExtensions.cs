@@ -39,7 +39,7 @@ public static class ServiceCollectionExtensions
         services.AddOptions<RabbitMqTransportOptions>()
             .BindConfiguration(configSectionKey ?? nameof(RabbitMqTransportOptions));
 
-        assembly ??= Assembly.GetExecutingAssembly();
+        assembly ??= Assembly.GetCallingAssembly();
 
         services.AddMassTransit(busConfiguration =>
         {
@@ -121,7 +121,7 @@ public static class ServiceCollectionExtensions
         services.AddOptions<RabbitMqTransportOptions>()
             .BindConfiguration(configSectionKey ?? nameof(RabbitMqTransportOptions));
 
-        assembly ??= Assembly.GetExecutingAssembly();
+        assembly ??= Assembly.GetCallingAssembly();
 
         services.AddMassTransit(busConfiguration =>
         {
@@ -222,7 +222,7 @@ public static class ServiceCollectionExtensions
         services.AddOptions<AzureServiceBusTransportOptions>()
             .BindConfiguration(configSectionKey ?? nameof(AzureServiceBusTransportOptions));
 
-        assembly ??= Assembly.GetExecutingAssembly();
+        assembly ??= Assembly.GetCallingAssembly();
 
         services.AddMassTransit(busConfiguration =>
         {
@@ -284,7 +284,7 @@ public static class ServiceCollectionExtensions
         services.AddOptions<AzureServiceBusTransportOptions>()
             .BindConfiguration(configSectionKey ?? nameof(AzureServiceBusTransportOptions));
 
-        assembly ??= Assembly.GetExecutingAssembly();
+        assembly ??= Assembly.GetCallingAssembly();
 
         services.AddMassTransit(busConfiguration =>
         {
@@ -359,7 +359,7 @@ public static class ServiceCollectionExtensions
     /// </remarks>
     public static IServiceCollection AddInMemoryEventBus(this IServiceCollection services, Assembly? assembly = null)
     {
-        assembly ??= Assembly.GetExecutingAssembly();
+        assembly ??= Assembly.GetCallingAssembly();
 
         services.AddMassTransit(busConfiguration =>
         {
