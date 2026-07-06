@@ -14,53 +14,56 @@ namespace DavidGroup.Core.DataAccess.Sql.Builders.InfiniteScrollPaginationQuery;
 public static class InfiniteScrollPaginationDynamicCursorBuilder
 {
     /// <summary>
-    /// Builds the <see cref="DynamicCursor"/> for the next page of an infinite scroll query.
+    /// Builds a <see cref="DynamicCursor"/> that points to the first item of the next page
+    /// in an infinite scroll query.
     /// </summary>
     /// <typeparam name="TEntity">The entity type being queried.</typeparam>
-    /// <param name="ordered">
-    /// The <see cref="IQueryable{T}"/> representing the already sorted query.
-    /// The cursor will be built from the last item in the current page.
+    /// <param name="orderedQuery">
+    /// The query with ordering already applied.
+    /// The cursor is built from the first item after the current page.
     /// </param>
-    /// <param name="orderedWith">
-    /// A collection of expressions defining the order of the query.
-    /// Used to determine the selector of the cursor values.
-    /// Direction does not matter because query is already ordered.
+    /// <param name="orderSelectors">
+    /// The expressions used to order the query.
+    /// They determine which values are included in the cursor. The ordering direction
+    /// is irrelevant because the query has already been ordered.
     /// </param>
-    /// <param name="pageSize">Pagination option that specifies page size.</param>
+    /// <param name="pageSize">The number of items in the current page.</param>
     /// <param name="cancellationToken">A token to observe for cancellation.</param>
     /// <returns>
-    /// A <see cref="DynamicCursor"/> representing the key values of the next page.
+    /// A <see cref="DynamicCursor"/> containing the ordering key values for the next page.
     /// </returns>
     public static async Task<DynamicCursor> BuildNextCursorAsync<TEntity>(
-        IQueryable<TEntity> ordered,
-        IEnumerable<Expression<Func<TEntity, object>>> orderedWith,
+        IQueryable<TEntity> orderedQuery,
+        IEnumerable<Expression<Func<TEntity, object>>> orderSelectors,
         int pageSize,
         CancellationToken cancellationToken = default)
     {
         ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "e");
 
-        NewArrayExpression nextCursorExpr = Expression.NewArrayInit(
+        NewArrayExpression cursorValuesExpression = Expression.NewArrayInit(
             typeof(object),
-            orderedWith.Select(o =>
+            orderSelectors.Select(selector =>
             {
-                Expression body = o.Body is UnaryExpression { NodeType: ExpressionType.Convert } unary
-                    ? unary.Operand
-                    : o.Body;
+                Expression selectorBody
+                    = selector.Body is UnaryExpression { NodeType: ExpressionType.Convert } conversion
+                        ? conversion.Operand
+                        : selector.Body;
 
-                body = new ReplaceParameterVisitor(o.Parameters[0], parameter).Visit(body);
+                selectorBody = new ReplaceParameterVisitor(selector.Parameters[0], parameter)
+                    .Visit(selectorBody);
 
-                return Expression.Convert(body, typeof(object));
+                return Expression.Convert(selectorBody, typeof(object));
             })
         );
 
-        Expression<Func<TEntity, object[]>> cursorSelector =
-            Expression.Lambda<Func<TEntity, object[]>>(nextCursorExpr, parameter);
+        Expression<Func<TEntity, object[]>> cursorProjection =
+            Expression.Lambda<Func<TEntity, object[]>>(cursorValuesExpression, parameter);
 
-        object[] nextValues = await ordered
+        object[] cursorValues = await orderedQuery
             .Skip(pageSize)
-            .Select(cursorSelector)
-            .FirstAsync(cancellationToken); // TODO: Try also with one query just including every column we need.
+            .Select(cursorProjection)
+            .FirstAsync(cancellationToken);
 
-        return new DynamicCursor(nextValues);
+        return new DynamicCursor(cursorValues);
     }
 }

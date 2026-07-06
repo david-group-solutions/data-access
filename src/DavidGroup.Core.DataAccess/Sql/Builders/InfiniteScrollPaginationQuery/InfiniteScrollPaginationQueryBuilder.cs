@@ -22,27 +22,27 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity>(IQueryable<TEntity> q
     where TEntity : class
 {
     /// <summary>
-    /// Use <see cref="ExecuteWithCursorPagination"/> method instead and pass the ordering specifications there.
+    /// Use <c>ExecuteWithCursorPagination</c> method instead and pass the ordering specifications there.
     /// </summary>
-    /// <exception cref="NotSupportedException">Use <see cref="ExecuteWithCursorPagination"/> method instead and pass the ordering specifications there.</exception>
+    /// <exception cref="NotSupportedException">Use <c>ExecuteWithCursorPagination</c> method instead and pass the ordering specifications there.</exception>
     public new BasicQueryBuilder<TEntity> WithOrdering(Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy)
     {
         throw new NotSupportedException($"Use {nameof(ExecuteWithCursorPagination)}() method instead and pass the ordering specifications there.");
     }
 
     /// <summary>
-    /// Use <see cref="ExecuteWithCursorPagination"/> method instead and pass the ordering specifications there.
+    /// Use <c>ExecuteWithCursorPagination</c> method instead and pass the ordering specifications there.
     /// </summary>
-    /// <exception cref="NotSupportedException">Use <see cref="ExecuteWithCursorPagination"/> method instead and pass the ordering specifications there.</exception>
+    /// <exception cref="NotSupportedException">Use <c>ExecuteWithCursorPagination</c> method instead and pass the ordering specifications there.</exception>
     public new BasicQueryBuilder<TEntity> WithOrdering(IReadOnlyList<OrderingSpecification<TEntity>>? orderingSpecifications)
     {
         throw new NotSupportedException($"Use {nameof(ExecuteWithCursorPagination)}() method instead and pass the ordering specifications there.");
     }
 
     /// <summary>
-    /// Use <see cref="ExecuteWithCursorPagination"/> method instead and pass the selector expression there.
+    /// Use <c>ExecuteWithCursorPagination</c> method instead and pass the selector expression there.
     /// </summary>
-    /// <exception cref="NotSupportedException">Use <see cref="ExecuteWithCursorPagination"/> method instead and pass the selector expression there.</exception>
+    /// <exception cref="NotSupportedException">Use <c>ExecuteWithCursorPagination</c> method instead and pass the selector expression there.</exception>
     public new InfiniteScrollPaginationQueryBuilder<TResult> WithProjection<TResult>(
         Expression<Func<TEntity, TResult>> selector)
         where TResult : class
@@ -67,9 +67,10 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity>(IQueryable<TEntity> q
     /// At least one ordering specification
     /// must be provided.
     /// </param>
-    /// <param name="selector">
-    /// An expression that projects each <typeparamref name="TEntity"/> into
-    /// <typeparamref name="TResult"/>.
+    /// <param name="selector">An expression defining the projection. Defaults to <c>e => e</c>.</param>
+    /// <param name="nextCursorSelector">
+    /// The selector for next cursor. By default, it will determine it automatically but execute the second SQL query,
+    /// in order to increase performance you must specify it manually.
     /// </param>
     /// <param name="cancellationToken">
     /// A token that can be used to cancel the asynchronous operation.
@@ -97,7 +98,8 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity>(IQueryable<TEntity> q
     public async Task<InfinitePageData<TResult>> ExecuteWithCursorPagination<TResult>(
         InfinitePageOptions pageOptions,
         IReadOnlyList<OrderingSpecification<TEntity>> orderingSpecifications,
-        Expression<Func<TEntity, TResult>> selector,
+        Expression<Func<TEntity, TResult>>? selector = null,
+        Func<TResult, object[]>? nextCursorSelector = null,
         CancellationToken cancellationToken = default)
     {
         if (orderingSpecifications.Count == 0)
@@ -106,21 +108,26 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity>(IQueryable<TEntity> q
                 "No ordering specifications were found. At least one ordering specification must be specified.");
         }
 
-        DynamicCursor? lastCursor = pageOptions.SearchAfter
-                                    ?? DynamicCursorTokenizer.Decode(pageOptions.SearchAfterToken);
-
-        if (lastCursor is not null)
+        if (pageOptions.SearchAfter is not null || pageOptions.SearchAfterToken is not null)
         {
-            Expression<Func<TEntity, bool>> searchAfterFilter =
-                InfiniteScrollPaginationSearchAfterFilterBuilder.Build(orderingSpecifications, lastCursor);
+            DynamicCursor? lastCursor = pageOptions.SearchAfter
+                                        ?? DynamicCursorTokenizer.Decode(pageOptions.SearchAfterToken);
 
-            Query = Query.Where(searchAfterFilter);
+            if (lastCursor is not null)
+            {
+                Expression<Func<TEntity, bool>> searchAfterFilter =
+                    InfiniteScrollPaginationSearchAfterFilterBuilder.Build(orderingSpecifications, lastCursor);
+
+                Query = Query.Where(searchAfterFilter);
+            }
         }
 
         Query = OrderingSpecification<TEntity>.Apply(Query, orderingSpecifications);
 
         List<TResult> temporaryResults = await Query
-            .Select(selector)
+            .Select(selector ??
+                    (Expression<Func<TEntity, TResult>>)(object)
+                    (Expression<Func<TEntity, TEntity>>)(e => e))
             .Take(pageOptions.Size + 1)
             .ToListAsync(cancellationToken);
 
@@ -129,8 +136,19 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity>(IQueryable<TEntity> q
         DynamicCursor? nextCursor = null;
         if (hasMore)
         {
-            nextCursor = await InfiniteScrollPaginationDynamicCursorBuilder.BuildNextCursorAsync(
-                Query, orderingSpecifications.Select(spec => spec.OrderBy), pageOptions.Size, cancellationToken);
+            if (nextCursorSelector is not null)
+            {
+                object[] nextCursorValues = temporaryResults
+                    .Select(nextCursorSelector)
+                    .Last();
+
+                nextCursor = new DynamicCursor(nextCursorValues);
+            }
+            else
+            {
+                nextCursor = await InfiniteScrollPaginationDynamicCursorBuilder.BuildNextCursorAsync(
+                    Query, orderingSpecifications.Select(spec => spec.OrderBy), pageOptions.Size, cancellationToken);
+            }
         }
 
         return new InfinitePageData<TResult>(

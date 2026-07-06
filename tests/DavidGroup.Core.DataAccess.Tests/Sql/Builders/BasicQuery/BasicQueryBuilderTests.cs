@@ -231,6 +231,44 @@ public static class BasicQueryBuilderTests
                 2
             ], resultingIds);
         }
+
+        [Fact]
+        public void WithProjection_SelectorIsNull_ReturnsNewBuilderWrappingDefaultProjectedResults()
+        {
+            // Arrange
+            List<BasicQueryTestEntity> entities =
+            [
+                new()
+                {
+                    Id = 1,
+                    Name = "Alpha"
+                },
+
+                new()
+                {
+                    Id = 2,
+                    Name = "Beta"
+                }
+            ];
+
+            IQueryable<BasicQueryTestEntity> sourceQuery = entities.AsQueryable();
+
+            BasicQueryBuilder<BasicQueryTestEntity> builder = new(sourceQuery);
+
+            // Act
+            BasicQueryBuilder<BasicQueryTestEntity> result = builder.WithProjection<BasicQueryTestEntity>(null);
+
+            List<BasicQueryTestEntity> resultingEntities = result.Query.ToList();
+
+            // Assert
+            Assert.NotSame(builder, result);
+
+            Assert.Equal(1, resultingEntities[0].Id);
+            Assert.Equal("Alpha", resultingEntities[0].Name);
+
+            Assert.Equal(2, resultingEntities[1].Id);
+            Assert.Equal("Beta", resultingEntities[1].Name);
+        }
     }
 
     // -------------------------------------------------------------------------
