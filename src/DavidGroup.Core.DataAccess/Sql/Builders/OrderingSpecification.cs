@@ -42,7 +42,8 @@ public record OrderingSpecification<TEntity>(
     /// An <see cref="OperationResult{T}"/> containing the parsed ordering specifications
     /// on success, or one or more error messages describing why parsing failed.
     /// </returns>
-    public static OperationResult<IReadOnlyList<OrderingSpecification<TEntity>>> Parse(string orderBy, IReadOnlyList<Expression<Func<TEntity, object>>>? allowedProperties)
+    public static OperationResult<IReadOnlyList<OrderingSpecification<TEntity>>> Parse(string orderBy,
+        IReadOnlyList<Expression<Func<TEntity, object>>>? allowedProperties)
     {
         List<OrderingSpecification<TEntity>> orderingSpecifications = [];
 

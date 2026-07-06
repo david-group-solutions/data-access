@@ -43,7 +43,7 @@ public static class InfiniteScrollPaginationQueryBuilderTests
         return context;
     }
 
-    private static List<TestEntity> CreateFourEntities()
+    private static TestEntity[] CreateFourEntities()
     {
         return
         [
@@ -149,7 +149,7 @@ public static class InfiniteScrollPaginationQueryBuilderTests
         public async Task WhenOrderingIsEmpty_ShouldThrowInvalidOperationException()
         {
             // Arrange
-            List<TestEntity> entities = CreateFourEntities();
+            TestEntity[] entities = CreateFourEntities();
             IQueryable<TestEntity> sourceQuery = entities.AsQueryable();
 
             InfiniteScrollPaginationQueryBuilder<TestEntity> builder = new(sourceQuery);
@@ -171,7 +171,7 @@ public static class InfiniteScrollPaginationQueryBuilderTests
         public async Task WhenFirstPage_ShouldReturnFirstItemsAndNextCursor()
         {
             // Arrange
-            TestDbContext context = CreateContext(CreateFourEntities().ToArray());
+            TestDbContext context = CreateContext(CreateFourEntities());
             InfiniteScrollPaginationQueryBuilder<TestEntity> builder = new(context.Entities);
 
             InfinitePageOptions options = new() { Size = 2 };
@@ -196,7 +196,7 @@ public static class InfiniteScrollPaginationQueryBuilderTests
         public async Task WhenLastPage_ShouldReturnAllItemsAndNullCursor()
         {
             // Arrange
-            TestDbContext context = CreateContext(CreateFourEntities().ToArray());
+            TestDbContext context = CreateContext(CreateFourEntities());
             InfiniteScrollPaginationQueryBuilder<TestEntity> builder = new(context.Entities);
 
             InfinitePageOptions options = new() { Size = 5 };
@@ -214,10 +214,10 @@ public static class InfiniteScrollPaginationQueryBuilderTests
         }
 
         [Fact]
-        public async Task ExecuteWithCursorPagination_WhenSearchAfterProvided_ShouldReturnItemsAfterCursor()
+        public async Task WhenSearchAfterProvided_ShouldReturnItemsAfterCursor()
         {
             // Arrange
-            TestDbContext context = CreateContext(CreateFourEntities().ToArray());
+            TestDbContext context = CreateContext(CreateFourEntities());
             InfiniteScrollPaginationQueryBuilder<TestEntity> builder = new(context.Entities);
 
             InfinitePageOptions options = new()
@@ -239,6 +239,31 @@ public static class InfiniteScrollPaginationQueryBuilderTests
 
             Assert.Null(result.NextCursor);
             Assert.Null(result.NextCursorToken);
+        }
+
+        [Fact]
+        public async Task WhenNextCursorSelectorProvided_ShouldReturnCorrectCursor()
+        {
+            // Arrange
+            TestDbContext context = CreateContext(CreateFourEntities());
+            InfiniteScrollPaginationQueryBuilder<TestEntity> builder = new(context.Entities);
+
+            InfinitePageOptions options = new() { Size = 2 };
+            IReadOnlyList<OrderingSpecification<TestEntity>> ordering = [new(x => x.Id, false)];
+
+            // Act
+            InfinitePageData<TestDto> result = await builder.ExecuteWithCursorPagination(
+                options,
+                orderingSpecifications: ordering,
+                selector: x => new TestDto { Id = x.Id },
+                nextCursorSelector: r => [r.Id]
+            );
+
+            // Assert
+            Assert.NotNull(result.NextCursor);
+            Assert.NotNull(result.NextCursorToken);
+
+            Assert.Equal([3], result.NextCursor.Values);
         }
     }
 }

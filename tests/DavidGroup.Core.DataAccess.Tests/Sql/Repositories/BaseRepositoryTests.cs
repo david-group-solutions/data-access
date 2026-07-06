@@ -101,14 +101,14 @@ public static class BaseRepositoryTests
 
             // Act
             var result = await repository.GetAllAsync(
+                predicate: entity => entity.Age >= 25,
+                orderBy: query => query.OrderBy(entity => entity.Age),
+                include: query => query.Include(entity => entity.RepoTestEntityAddress),
                 selector: entity => new
                 {
                     entity.Name,
                     entity.RepoTestEntityAddress.City
-                },
-                predicate: entity => entity.Age >= 25,
-                orderBy: query => query.OrderBy(entity => entity.Age),
-                include: query => query.Include(entity => entity.RepoTestEntityAddress)
+                }
             );
 
             // Assert
@@ -164,14 +164,14 @@ public static class BaseRepositoryTests
             // Act
             var result = await repository.GetAllAsync(
                 options,
+                predicate: entity => entity.Age >= 25,
+                orderBy: query => query.OrderBy(entity => entity.Age),
+                include: query => query.Include(entity => entity.RepoTestEntityAddress),
                 selector: entity => new
                 {
                     entity.Name,
                     entity.RepoTestEntityAddress.City
-                },
-                predicate: entity => entity.Age >= 25,
-                orderBy: query => query.OrderBy(entity => entity.Age),
-                include: query => query.Include(entity => entity.RepoTestEntityAddress)
+                }
             );
 
             // Assert
@@ -208,14 +208,14 @@ public static class BaseRepositoryTests
             // Act
             var result = await repository.GetAllAsync(
                 options,
+                predicate: entity => entity.Age >= 25,
+                orderingSpecifications: orderingSpecifications,
+                include: query => query.Include(entity => entity.RepoTestEntityAddress),
                 selector: entity => new
                 {
                     entity.Name,
                     entity.RepoTestEntityAddress.City
-                },
-                predicate: entity => entity.Age >= 25,
-                orderingSpecifications: orderingSpecifications,
-                include: query => query.Include(entity => entity.RepoTestEntityAddress)
+                }
             );
 
             // Assert
@@ -259,14 +259,14 @@ public static class BaseRepositoryTests
             // Act
             var result = await repository.GetAllAsync(
                 options,
+                predicate: entity => entity.Age >= 20 && entity.Age <= 25,
+                orderingSpecifications: orderingSpecifications,
+                include: query => query.Include(entity => entity.RepoTestEntityAddress),
                 selector: entity => new
                 {
                     entity.Name,
                     entity.RepoTestEntityAddress.City
-                },
-                predicate: entity => entity.Age >= 20 && entity.Age <= 25,
-                orderingSpecifications: orderingSpecifications,
-                include: query => query.Include(entity => entity.RepoTestEntityAddress)
+                }
             );
 
             // Assert
@@ -293,7 +293,7 @@ public static class BaseRepositoryTests
 
             // Act & Assert
             ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(() =>
-                repository.GetAllAsync(null!, orderingSpecifications, entity => entity));
+                repository.GetAllAsync<RepoTestEntity>(null!, orderingSpecifications));
 
             Assert.Equal("orderingSpecifications", ex.ParamName);
             Assert.Contains("At least one ordering selector must be provided.", ex.Message);
@@ -315,14 +315,14 @@ public static class BaseRepositoryTests
 
             // Act
             var result = await repository.FirstOrDefaultAsync(
+                predicate: entity => entity.Age == 20 || entity.Age == 30,
+                orderBy: query => query.OrderBy(entity => entity.Age),
+                include: query => query.Include(entity => entity.RepoTestEntityAddress),
                 selector: entity => new
                 {
                     entity.Name,
                     entity.RepoTestEntityAddress.City
-                },
-                predicate: entity => entity.Age == 20 || entity.Age == 30,
-                orderBy: query => query.OrderBy(entity => entity.Age),
-                include: query => query.Include(entity => entity.RepoTestEntityAddress)
+                }
             );
 
             // Assert
