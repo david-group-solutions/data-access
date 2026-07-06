@@ -113,11 +113,14 @@ public class BasicQueryBuilder<TEntity>(IQueryable<TEntity> query)
     /// Projects the current query to a different result type using the specified selector.
     /// </summary>
     /// <typeparam name="TResult">The projection type.</typeparam>
-    /// <param name="selector">An expression defining the projection.</param>
+    /// <param name="selector">An expression defining the projection. When null defaults to <c>e => e</c>.</param>
     /// <returns>A new <see cref="BasicQueryBuilder{TEntity}"/> for the projected result type.</returns>
-    public BasicQueryBuilder<TResult> WithProjection<TResult>(Expression<Func<TEntity, TResult>> selector)
+    public BasicQueryBuilder<TResult> WithProjection<TResult>(Expression<Func<TEntity, TResult>>? selector)
         where TResult : class
     {
+        selector ??= (Expression<Func<TEntity, TResult>>)(object)
+            (Expression<Func<TEntity, TEntity>>)(e => e);
+
         return new BasicQueryBuilder<TResult>(Query.Select(selector));
     }
 

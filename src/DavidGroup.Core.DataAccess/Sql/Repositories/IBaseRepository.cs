@@ -32,10 +32,10 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <summary>
     /// Gets all entities.
     /// </summary>
-    /// <param name="selector">The selector for projection.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
     /// <param name="orderBy">A function to order elements.</param>
     /// <param name="include">A function to include navigation properties.</param>
+    /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
@@ -45,10 +45,10 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <remarks>This method executes a no-tracking query.</remarks>
     /// <remarks>This method executes a no-tracking query and does not ignore query filters by default.</remarks>
     Task<List<TResult>> GetAllAsync<TResult>(
-        Expression<Func<TEntity, TResult>> selector,
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object?>>? include = null,
+        Expression<Func<TEntity, TResult>>? selector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
@@ -58,10 +58,10 @@ public interface IBaseRepository<TEntity, in TKey>
     /// Gets all entities using offset pagination.
     /// </summary>
     /// <param name="options">PaginationOptions to paginate result.</param>
-    /// <param name="selector">The selector for projection.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
     /// <param name="orderBy">A function to order elements.</param>
     /// <param name="include">A function to include navigation properties.</param>
+    /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
@@ -72,10 +72,10 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <remarks>This method executes a no-tracking query and does not ignore query filters by default.</remarks>
     Task<PageData<TResult>> GetAllAsync<TResult>(
         PageOptions options,
-        Expression<Func<TEntity, TResult>> selector,
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object?>>? include = null,
+        Expression<Func<TEntity, TResult>>? selector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
@@ -86,10 +86,10 @@ public interface IBaseRepository<TEntity, in TKey>
     /// of <see cref="OrderingSpecification{TEntity}"/>.
     /// </summary>
     /// <param name="options">PaginationOptions to paginate result.</param>
-    /// <param name="selector">The selector for projection.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
     /// <param name="orderingSpecifications">A collection which represents ordering specifications.</param>
     /// <param name="include">A function to include navigation properties.</param>
+    /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
@@ -100,10 +100,10 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <remarks>This method executes a no-tracking query and does not ignore query filters by default.</remarks>
     Task<PageData<TResult>> GetAllAsync<TResult>(
         PageOptions options,
-        Expression<Func<TEntity, TResult>> selector,
         Expression<Func<TEntity, bool>>? predicate = null,
         IReadOnlyList<OrderingSpecification<TEntity>>? orderingSpecifications = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
+        Expression<Func<TEntity, TResult>>? selector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
@@ -113,10 +113,11 @@ public interface IBaseRepository<TEntity, in TKey>
     /// Gets all entities using cursor (infinite scroll) pagination.
     /// </summary>
     /// <param name="options">InfinitePaginationOptions to paginate result.</param>
-    /// <param name="selector">The selector for projection.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
     /// <param name="orderingSpecifications">A collection which represents ordering specifications.</param>
     /// <param name="include">A function to include navigation properties.</param>
+    /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
+    /// <param name="nextCursorSelector">The selector for next cursor. By default, it will determine it automatically, but to increase performance you must specify it manually.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
@@ -128,9 +129,10 @@ public interface IBaseRepository<TEntity, in TKey>
     Task<InfinitePageData<TResult>> GetAllAsync<TResult>(
         InfinitePageOptions options,
         IReadOnlyList<OrderingSpecification<TEntity>> orderingSpecifications,
-        Expression<Func<TEntity, TResult>> selector,
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object?>>? include = null,
+        Expression<Func<TEntity, TResult>>? selector = null,
+        Func<TResult, object[]>? nextCursorSelector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
@@ -139,20 +141,20 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <summary>
     /// Gets the first or default entity.
     /// </summary>
-    /// <param name="selector">The selector for projection.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
     /// <param name="orderBy">A function to order elements.</param>
     /// <param name="include">A function to include navigation properties</param>
+    /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
     /// <returns>A <see><cref>{TResult?}</cref></see> element or null nothing found.</returns>
     /// <remarks>This method executes a no-tracking query and does not ignore query filters by default.</remarks>
     Task<TResult?> FirstOrDefaultAsync<TResult>(
-        Expression<Func<TEntity, TResult>> selector,
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object?>>? include = null,
+        Expression<Func<TEntity, TResult>>? selector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
