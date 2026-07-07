@@ -118,6 +118,23 @@ public static class OrderingSpecificationTests
         }
 
         [Fact]
+        public void Parse_SinglePropertyWithAscSuffix_ReturnsAscendingSpecification()
+        {
+            // Arrange
+            const string orderBy = "Name asc";
+            IReadOnlyList<Expression<Func<OrderingTestEntity, object>>>? allowedProperties = null;
+
+            // Act
+            OperationResult<IReadOnlyList<OrderingSpecification<OrderingTestEntity>>> result =
+                OrderingSpecification<OrderingTestEntity>.Parse(orderBy, allowedProperties);
+
+            // Assert
+            Assert.True(result.Succeeded);
+            Assert.Single(result.Value);
+            Assert.False(result.Value[0].IsDescending);
+        }
+
+        [Fact]
         public void Parse_SinglePropertyWithDescSuffix_ReturnsDescendingSpecification()
         {
             // Arrange
@@ -138,7 +155,7 @@ public static class OrderingSpecificationTests
         public void Parse_MultipleCommaSeparatedProperties_ReturnsOneSpecificationPerProperty()
         {
             // Arrange
-            const string orderBy = "Name desc, CreatedAtUtc";
+            const string orderBy = "Name desc, CreatedAtUtc, Id asc";
             IReadOnlyList<Expression<Func<OrderingTestEntity, object>>>? allowedProperties = null;
 
             // Act
@@ -147,9 +164,10 @@ public static class OrderingSpecificationTests
 
             // Assert
             Assert.True(result.Succeeded);
-            Assert.Equal(2, result.Value.Count);
+            Assert.Equal(3, result.Value.Count);
             Assert.True(result.Value[0].IsDescending);
             Assert.False(result.Value[1].IsDescending);
+            Assert.False(result.Value[2].IsDescending);
         }
 
         [Fact]
