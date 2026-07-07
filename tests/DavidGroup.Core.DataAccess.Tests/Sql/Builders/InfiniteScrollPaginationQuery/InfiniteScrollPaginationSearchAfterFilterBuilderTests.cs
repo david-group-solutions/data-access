@@ -181,5 +181,43 @@ public static class InfiniteScrollPaginationSearchAfterFilterBuilderTests
                 Name = "Zulu"
             }));
         }
+
+        [Fact]
+        public void WhenMultipleOrderingSpecifications_And_InvalidCursor_ShouldThrowInvalidOperationException()
+        {
+            // Arrange
+            IReadOnlyList<OrderingSpecification<TestEntity>> orderingSpecifications =
+            [
+                new(entity => entity.Id, false),
+                new(entity => entity.Name, false)
+            ];
+
+            DynamicCursor cursor = new([2025]); // Invalid cursor; does not match to orderingSpecifications.
+
+            // Act
+            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+                InfiniteScrollPaginationSearchAfterFilterBuilder.Build(orderingSpecifications, cursor));
+
+            Assert.Equal("Invalid cursor provided.", ex.Message);
+        }
+
+        [Fact]
+        public void WhenMultipleOrderingSpecifications_And_InvalidCursorWithNotMatchingTypes_ShouldThrowInvalidOperationException()
+        {
+            // Arrange
+            IReadOnlyList<OrderingSpecification<TestEntity>> orderingSpecifications =
+            [
+                new(entity => entity.Id, false),
+                new(entity => entity.Name, false)
+            ];
+
+            DynamicCursor cursor = new(["1", true]); // Invalid cursor; types don't match to orderingSpecifications.
+
+            // Act
+            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+                InfiniteScrollPaginationSearchAfterFilterBuilder.Build(orderingSpecifications, cursor));
+
+            Assert.Equal("Invalid cursor provided.", ex.Message);
+        }
     }
 }
