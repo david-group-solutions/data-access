@@ -31,6 +31,9 @@ public static class InfiniteScrollPaginationSearchAfterFilterBuilder
         if (orderingSpecifications.Count == 0)
             throw new InvalidOperationException("No ordering specifications were found.");
 
+        if (orderingSpecifications.Count != lastCursor.Values.Length)
+            throw new InvalidOperationException("Invalid cursor provided.");
+
         ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "e");
         Expression? filter = null;
 
@@ -38,8 +41,19 @@ public static class InfiniteScrollPaginationSearchAfterFilterBuilder
         {
             Expression<Func<TEntity, object>> orderSelector = orderingSpecifications[i].OrderBy;
             Expression orderMember = UnWrap(orderSelector.Body);
+
+            Type expectedCursorValueType = orderMember.Type;
+            object? cursorValue = lastCursor.Values[i];
+
+            if (cursorValue is null)
+                if (expectedCursorValueType.IsValueType && Nullable.GetUnderlyingType(expectedCursorValueType) is null)
+                    throw new InvalidOperationException("Invalid cursor provided.");
+
+            if (!expectedCursorValueType.IsInstanceOfType(cursorValue))
+                throw new InvalidOperationException("Invalid cursor provided.");
+
             orderMember = new ReplaceParameterVisitor(orderSelector.Parameters[0], parameter).Visit(orderMember);
-            ConstantExpression orderValue = Expression.Constant(lastCursor.Values[i]);
+            ConstantExpression orderValue = Expression.Constant(cursorValue);
 
             BinaryExpression comparison = BuildComparison(orderMember, orderValue, !orderingSpecifications[i].IsDescending);
 
