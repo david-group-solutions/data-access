@@ -14,7 +14,6 @@ public interface ISelfManageable<TEntity>
     /// <returns>A new instance of <typeparamref name="TEntity"/> initialized from <paramref name="model"/>.</returns>
     static abstract TEntity Create(TEntity model);
 
-
     /// <summary>
     /// Updates the current entity's state based on the provided model.
     /// </summary>
