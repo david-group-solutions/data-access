@@ -83,14 +83,15 @@ jobs:
           sqllocaldb info MSSQLLocalDB
 
       - name: Run benchmarks
+        shell: pwsh
         run: |
-          dotnet run \
-            --project benchmarks/DavidGroup.Core.DataAccess.Benchmarks/DavidGroup.Core.DataAccess.Benchmarks.csproj \
-            --configuration Release \
-            --no-build \
-            -- \
-            --exporters json github html csv \
-            --artifacts BenchmarkResults \
+          dotnet run `
+            --project benchmarks/DavidGroup.Core.DataAccess.Benchmarks/DavidGroup.Core.DataAccess.Benchmarks.csproj `
+            --configuration Release `
+            --no-build `
+            -- `
+            --exporters json github html csv `
+            --artifacts BenchmarkResults `
             -f '*'
  
       - name: Upload benchmark results
