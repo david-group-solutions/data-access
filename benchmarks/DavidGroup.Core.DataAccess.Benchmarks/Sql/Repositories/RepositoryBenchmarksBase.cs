@@ -40,7 +40,7 @@ public abstract class RepositoryBenchmarksBase
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             dbContextOptions = new DbContextOptionsBuilder<BenchmarkDbContext>()
-                .UseSqlServer($@"Server=(localdb)\\mssqllocaldb;Database={Guid.NewGuid()};Trusted_Connection=True;")
+                .UseSqlServer($@"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog={Guid.NewGuid()};Integrated Security=True;Encrypt=False;")
                 .Options;
         }
         else
