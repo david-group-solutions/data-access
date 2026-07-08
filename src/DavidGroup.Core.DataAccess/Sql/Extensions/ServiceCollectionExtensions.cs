@@ -157,7 +157,7 @@ public static class ServiceCollectionExtensions
     /// <returns>
     /// The same <see cref="IServiceCollection"/> instance so that additional calls can be chained.
     /// </returns>
-    public static IServiceCollection AddAllRepositoriesAuto(this IServiceCollection services,
+    public static IServiceCollection AddRepositoriesAuto(this IServiceCollection services,
         Assembly? assembly = null)
     {
         return services.AddImplementations(
@@ -181,9 +181,9 @@ public static class ServiceCollectionExtensions
     /// <returns>
     /// The same <see cref="IServiceCollection"/> instance so that additional calls can be chained.
     /// </returns>
-    public static IServiceCollection AddAllRepositoriesAuto<TAssembly>(this IServiceCollection services)
+    public static IServiceCollection AddRepositoriesAuto<TAssembly>(this IServiceCollection services)
     {
-        return services.AddAllRepositoriesAuto(typeof(TAssembly).Assembly);
+        return services.AddRepositoriesAuto(typeof(TAssembly).Assembly);
     }
 
     /// <summary>
@@ -201,7 +201,7 @@ public static class ServiceCollectionExtensions
     /// <returns>
     /// The same <see cref="IServiceCollection"/> instance so that additional calls can be chained.
     /// </returns>
-    public static IServiceCollection AddAllServicesAuto(this IServiceCollection services,
+    public static IServiceCollection AddServicesAuto(this IServiceCollection services,
         Assembly? assembly = null)
     {
         return services.AddImplementations(
@@ -226,9 +226,9 @@ public static class ServiceCollectionExtensions
     /// <returns>
     /// The same <see cref="IServiceCollection"/> instance so that additional calls can be chained.
     /// </returns>
-    public static IServiceCollection AddAllServicesAuto<TAssembly>(this IServiceCollection services)
+    public static IServiceCollection AddServicesAuto<TAssembly>(this IServiceCollection services)
     {
-        return services.AddAllServicesAuto(typeof(TAssembly).Assembly);
+        return services.AddServicesAuto(typeof(TAssembly).Assembly);
     }
 
     /// <summary>

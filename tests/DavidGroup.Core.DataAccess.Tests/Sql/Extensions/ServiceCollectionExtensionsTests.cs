@@ -301,10 +301,10 @@ public static class ServiceCollectionExtensionsTests
     }
 
     // -------------------------------------------------------------------------
-    // ServiceCollectionExtensions.AddAllRepositoriesAuto tests
+    // ServiceCollectionExtensions.AddRepositoriesAuto tests
     // -------------------------------------------------------------------------
 
-    public sealed class AddAllRepositoriesAutoTests
+    public sealed class AddRepositoriesAutoTests
     {
         [Fact]
         public void ScansCallingAssembly_RegistersDiscoveredRepository()
@@ -316,7 +316,7 @@ public static class ServiceCollectionExtensionsTests
                 options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
 
             // Act
-            services.AddAllRepositoriesAuto<AddAllRepositoriesAutoTests>();
+            services.AddRepositoriesAuto<AddRepositoriesAutoTests>();
 
             ServiceProvider provider = services.BuildServiceProvider();
             IDummyRepository repository = provider.GetRequiredService<IDummyRepository>();
@@ -327,10 +327,10 @@ public static class ServiceCollectionExtensionsTests
     }
 
     // -------------------------------------------------------------------------
-    // ServiceCollectionExtensions.AddAllServicesAuto tests
+    // ServiceCollectionExtensions.AddServicesAuto tests
     // -------------------------------------------------------------------------
 
-    public sealed class AddAllServicesAutoTests
+    public sealed class AddServicesAutoTests
     {
         [Fact]
         public void ScansCallingAssembly_RegistersDiscoveredService()
@@ -344,7 +344,7 @@ public static class ServiceCollectionExtensionsTests
             services.AddScoped<IDummyRepository, DummyRepository>();
 
             // Act
-            services.AddAllServicesAuto<AddAllServicesAutoTests>();
+            services.AddServicesAuto<AddServicesAutoTests>();
 
             ServiceProvider provider = services.BuildServiceProvider();
             IDummyReadonlyService service = provider.GetRequiredService<IDummyReadonlyService>();
