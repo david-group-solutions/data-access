@@ -10,6 +10,52 @@ namespace DavidGroup.Core.DataAccess.Tests.Pagination;
 
 public static class PageOptionsTests
 {
+    // =========================================================================
+    // Constructor(int page, int size)
+    // =========================================================================
+
+    public class CtorPageSize
+    {
+        [Fact]
+        public void Sets_PageAndSize_Correctly()
+        {
+            // Arrange & Act
+            PageOptions opts = new(page: 1, size: 10);
+
+            // Assert
+            Assert.Equal(1, opts.Page);
+            Assert.Equal(10, opts.Size);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        [InlineData(int.MinValue)]
+        public void PageLessThanOrEqualToZero_ThrowsArgumentException(int page)
+        {
+            // Arrange, Act, Assert
+            ArgumentException ex = Assert.Throws<ArgumentException>(() =>
+                new PageOptions(page, 10));
+
+            Assert.Equal("page", ex.ParamName);
+            Assert.Contains(PaginationErrorMessages.PageNumberShouldBeGreaterThanZero, ex.Message);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        [InlineData(int.MinValue)]
+        public void SizeLessThanOrEqualToZero_ThrowsArgumentException(int size)
+        {
+            // Arrange, Act, Assert
+            ArgumentException ex = Assert.Throws<ArgumentException>(() =>
+                new PageOptions(1, size));
+
+            Assert.Equal("size", ex.ParamName);
+            Assert.Contains(PaginationErrorMessages.PageSizeShouldBeGreaterThanZero, ex.Message);
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Data annotation validation tests (without IConfiguration — uses default 100)
     // -------------------------------------------------------------------------
@@ -33,7 +79,11 @@ public static class PageOptionsTests
         public void GivenValidPageAndSize_ShouldPassValidation(int page, int size)
         {
             // Arrange
-            PageOptions options = new() { Page = page, Size = size };
+            PageOptions options = new()
+            {
+                Page = page,
+                Size = size
+            };
 
             // Act
             IList<ValidationResult> results = Validate(options);
@@ -48,7 +98,11 @@ public static class PageOptionsTests
         public void GivenInvalidPage_ShouldFailValidation(int page, int size)
         {
             // Arrange
-            PageOptions options = new() { Page = page, Size = size };
+            PageOptions options = new()
+            {
+                Page = page,
+                Size = size
+            };
 
             // Act
             IList<ValidationResult> results = Validate(options);
@@ -64,7 +118,11 @@ public static class PageOptionsTests
         public void GivenSizeLessOrEqualToZero_ShouldFailValidation(int page, int size)
         {
             // Arrange
-            PageOptions options = new() { Page = page, Size = size };
+            PageOptions options = new()
+            {
+                Page = page,
+                Size = size
+            };
 
             // Act
             IList<ValidationResult> results = Validate(options);
@@ -78,7 +136,11 @@ public static class PageOptionsTests
         public void GivenSizeExceedsDefault100_AndNoConfiguration_ShouldFailValidation()
         {
             // Arrange
-            PageOptions options = new() { Page = 1, Size = 101 };
+            PageOptions options = new()
+            {
+                Page = 1,
+                Size = 101
+            };
 
             // Act
             IList<ValidationResult> results = Validate(options);
@@ -118,7 +180,11 @@ public static class PageOptionsTests
         {
             // Arrange
             IConfiguration config = BuildConfig(maxPageSize: 50);
-            PageOptions options = new() { Page = 1, Size = 50 };
+            PageOptions options = new()
+            {
+                Page = 1,
+                Size = 50
+            };
 
             // Act
             IList<ValidationResult> results = Validate(options, config);
@@ -132,7 +198,11 @@ public static class PageOptionsTests
         {
             // Arrange
             IConfiguration config = BuildConfig(maxPageSize: 50);
-            PageOptions options = new() { Page = 1, Size = 51 };
+            PageOptions options = new()
+            {
+                Page = 1,
+                Size = 51
+            };
 
             // Act
             IList<ValidationResult> results = Validate(options, config);
@@ -148,7 +218,11 @@ public static class PageOptionsTests
 
             // Empty config — no Pagination:MaxPageSize key
             IConfigurationRoot config = new ConfigurationBuilder().Build();
-            PageOptions options = new() { Page = 1, Size = 100 };
+            PageOptions options = new()
+            {
+                Page = 1,
+                Size = 100
+            };
 
             // Act
             IList<ValidationResult> results = Validate(options, config);
@@ -162,7 +236,11 @@ public static class PageOptionsTests
         {
             // Arrange
             IConfigurationRoot config = new ConfigurationBuilder().Build();
-            PageOptions options = new() { Page = 1, Size = 101 };
+            PageOptions options = new()
+            {
+                Page = 1,
+                Size = 101
+            };
 
             // Act
             IList<ValidationResult> results = Validate(options, config);
@@ -181,7 +259,11 @@ public static class PageOptionsTests
         {
             // Arrange
             IConfiguration config = BuildConfig(configuredMax);
-            PageOptions options = new() { Page = 1, Size = requestedSize };
+            PageOptions options = new()
+            {
+                Page = 1,
+                Size = requestedSize
+            };
 
             // Act
             IList<ValidationResult> results = Validate(options, config);
@@ -207,7 +289,11 @@ public static class PageOptionsTests
         public void Serialize_ThenDeserialize_ShouldPreserveAllProperties()
         {
             // Arrange
-            PageOptions original = new() { Page = 1, Size = 100 };
+            PageOptions original = new()
+            {
+                Page = 1,
+                Size = 100
+            };
 
             // Act
             string json = JsonSerializer.Serialize(original);
