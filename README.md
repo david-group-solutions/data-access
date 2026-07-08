@@ -2,8 +2,7 @@
 
 #### [![Release](https://github.com/david-group-solutions/data-access/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/david-group-solutions/data-access/actions/workflows/release.yml) [![Nuget](https://img.shields.io/nuget/v/DavidGroup.Core.DataAccess)](https://www.nuget.org/packages/DavidGroup.Core.DataAccess/)
 
-A productivity library that accelerates .NET project development by providing ready-to-use helpers for
-common application needs.
+Foundation library providing data access abstractions for Entity Framework, ADO.NET, and other .NET technologies, along with common patterns and helper extensions.
 
 ---
 
