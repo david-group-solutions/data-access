@@ -1,6 +1,6 @@
 # DavidGroup.Core.DataAccess
 
-#### [![Release](https://github.com/david-group-solutions/data-access/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/david-group-solutions/data-access/actions/workflows/release.yml) [![Nuget](https://img.shields.io/nuget/v/DavidGroup.Core.DataAccess)](https://www.nuget.org/packages/DavidGroup.Core.DataAccess/)
+#### [![Release](https://github.com/david-group-solutions/data-access/actions/workflows/release.yml/badge.svg)](https://github.com/david-group-solutions/data-access/actions/workflows/release.yml) [![Nuget](https://img.shields.io/nuget/v/DavidGroup.Core.DataAccess)](https://www.nuget.org/packages/DavidGroup.Core.DataAccess/)
 
 Foundation library providing data access abstractions for Entity Framework, ADO.NET, and other .NET technologies, along with common patterns and helper extensions.
 
