@@ -2,7 +2,7 @@ name: Pull Request
 
 on:
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: [ "main", "develop", "release/*", "hotfix/*" ]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true 
