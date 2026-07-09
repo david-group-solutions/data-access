@@ -73,20 +73,7 @@ jobs:
           echo "Package version suffix is $suffix"
           echo "Package version is $prefix-$suffix"
 
-      #########################################################################################
-      # Uncomment if signing is needed for NuGet package.
-      #########################################################################################
-      #
-      # - name: Obtain SNK
-      #   id: obtain_snk
-      #   uses: timheuer/base64-to-file@v2
-      #   with:
-      #     fileName: 'SigningKey.snk'
-      #     encodedString: ${{ secrets.SNK_BASE64 }}
-
       - name: Pack
-        # Use this command if signing is needed for NuGet package.
-        # run: dotnet pack -c Release --version-suffix="${{ steps.version.outputs.suffix }}" /p:ContinuousIntegrationBuild=true /p:AssemblyOriginatorKeyFile=${{ steps.obtain_snk.outputs.filePath }} /p:ShouldSignAssembly=true
         run: dotnet pack -c Release --version-suffix="${{ steps.version.outputs.suffix }}" /p:ContinuousIntegrationBuild=true
 
       - name: NuGet login

@@ -13,6 +13,9 @@
 
         <GenerateDocumentationFile Condition="!$(MSBuildProjectName.EndsWith('Tests'))">true</GenerateDocumentationFile>
 
+        <SignAssembly Condition="Exists('$(MSBuildThisFileDirectory)assets/DavidGroupSolutions.snk')">true</SignAssembly>
+        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)assets/DavidGroupSolutions.snk</AssemblyOriginatorKeyFile>
+
         <!-- Enable debugging and diagnostics with Source Link. See these for more information:
         https://learn.microsoft.com/en-us/visualstudio/debugger/how-to-improve-diagnostics-debugging-with-sourcelink?view=visualstudio
         https://learn.microsoft.com/en-us/nuget/create-packages/symbol-packages-snupkg -->
