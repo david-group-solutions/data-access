@@ -19,17 +19,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      #########################################################################################
-      # Uncomment if signing is needed for NuGet package.
-      #########################################################################################
-      #
-      # - name: Obtain SNK
-      #   id: obtain_snk
-      #   uses: timheuer/base64-to-file@v2
-      #   with:
-      #     fileName: 'SigningKey.snk'
-      #     encodedString: ${{ secrets.SNK_BASE64 }}
-      
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
@@ -44,8 +33,6 @@ jobs:
 
       - name: Pack
         working-directory: ./
-        # Use this command if signing is needed for NuGet package.
-        # run: dotnet pack -c Release /p:ContinuousIntegrationBuild=true /p:AssemblyOriginatorKeyFile=${{ steps.obtain_snk.outputs.filePath }} /p:ShouldSignAssembly=true
         run: dotnet pack -c Release -o out /p:ContinuousIntegrationBuild=true
 
       - name: Upload .nupkg to Release
