@@ -60,7 +60,7 @@ public static class InfiniteScrollPaginationDynamicCursorBuilder
             Expression.Lambda<Func<TEntity, object[]>>(cursorValuesExpression, parameter);
 
         object[] cursorValues = await orderedQuery
-            .Skip(pageSize)
+            .Skip(pageSize - 1)
             .Select(cursorProjection)
             .FirstAsync(cancellationToken);
 

@@ -29,7 +29,6 @@ public static class InfinitePageDataTests
             // Assert
             Assert.Empty(page.Entities);
             Assert.Null(page.NextCursor);
-            Assert.Null(page.NextCursorToken);
             Assert.False(page.HasNextPage);
         }
     }
@@ -47,7 +46,7 @@ public static class InfinitePageDataTests
             List<int> entities = SomeEntities();
 
             // Act
-            InfinitePageData<int> page = new(entities, null, false);
+            InfinitePageData<int> page = new(entities, null);
 
             // Assert
             Assert.Equal(entities, page.Entities);
@@ -57,7 +56,7 @@ public static class InfinitePageDataTests
         public void NullEntities_FallBackToEmptyEnumerable()
         {
             // Arrange, Act
-            InfinitePageData<int> page = new(null, null, false);
+            InfinitePageData<int> page = new(null, null);
 
             // Assert
             Assert.Empty(page.Entities);
@@ -67,7 +66,7 @@ public static class InfinitePageDataTests
         public void EmptyEntities_AreStoredAsEmpty()
         {
             // Arrange, Act
-            InfinitePageData<int> page = new([], null, false);
+            InfinitePageData<int> page = new([], null);
 
             // Assert
             Assert.Empty(page.Entities);
@@ -80,7 +79,7 @@ public static class InfinitePageDataTests
             List<int> entities = [3, 1, 2];
 
             // Act
-            InfinitePageData<int> page = new(entities, null, false);
+            InfinitePageData<int> page = new(entities, null);
 
             // Assert
             Assert.True(page.Entities.SequenceEqual([3, 1, 2]));
@@ -93,7 +92,7 @@ public static class InfinitePageDataTests
             List<string> entities = ["a", "b"];
 
             // Act
-            InfinitePageData<string> page = new(entities, null, false);
+            InfinitePageData<string> page = new(entities, null);
 
             // Assert
             Assert.True(page.Entities.SequenceEqual(["a", "b"]));
@@ -106,15 +105,15 @@ public static class InfinitePageDataTests
             List<object> items = [new(), new()];
 
             // Act
-            InfinitePageData<object> page = new(items, null, false);
+            InfinitePageData<object> page = new(items, null);
 
             // Assert
-            Assert.Equal(2, page.Entities.Count());
+            Assert.Equal(2, page.Entities.Count);
         }
     }
 
     // =========================================================================
-    // Main constructor — NextCursor & NextCursorToken
+    // Main constructor — NextCursor
     // =========================================================================
 
     public class CtorNextCursor
@@ -124,82 +123,20 @@ public static class InfinitePageDataTests
         {
             // Arrange, Act
             DynamicCursor cursor = SomeCursor();
-            InfinitePageData<int> page = new(null, cursor, false);
+            InfinitePageData<int> page = new(null, cursor);
 
             // Assert
             Assert.Same(cursor, page.NextCursor);
-            Assert.NotNull(page.NextCursorToken);
-            Assert.Equal(cursor.Encode(), page.NextCursorToken);
         }
 
         [Fact]
         public void NullCursor_IsStoredAsNull()
         {
             // Arrange, Act
-            InfinitePageData<int> page = new(null, null, false);
+            InfinitePageData<int> page = new(null, null);
 
             // Assert
             Assert.Null(page.NextCursor);
-            Assert.Null(page.NextCursorToken);
-        }
-
-        [Fact]
-        public void DifferentCursors_ProduceDifferentTokens()
-        {
-            // Arrange
-            DynamicCursor cursorA = new([1]);
-            DynamicCursor cursorB = new([2]);
-
-            // Act
-            InfinitePageData<int> pageA = new(null, cursorA, false);
-            InfinitePageData<int> pageB = new(null, cursorB, false);
-
-            // Assert
-            Assert.NotEqual(pageA.NextCursor, pageB.NextCursor);
-            Assert.NotEqual(pageA.NextCursorToken, pageB.NextCursorToken);
-        }
-
-        [Fact]
-        public void NextCursorToken_CanBeDecodedBackToNextCursor()
-        {
-            // Arrange
-            DynamicCursor cursor = new([99, "page-key"]);
-            InfinitePageData<int> page = new(null, cursor, false);
-
-            // Act
-            DynamicCursor? decoded = DynamicCursorTokenizer.Decode(page.NextCursorToken);
-
-            // Assert
-            Assert.NotNull(decoded);
-            Assert.Equal((byte)99, decoded.Values[0]);
-            Assert.Equal("page-key", decoded.Values[1]);
-        }
-    }
-
-    // =========================================================================
-    // Main constructor — HasNextPage
-    // =========================================================================
-
-    public class CtorHasNextPage
-    {
-        [Fact]
-        public void TrueIsStored()
-        {
-            // Arrange, Act
-            InfinitePageData<int> page = new(null, null, true);
-
-            // Assert
-            Assert.True(page.HasNextPage);
-        }
-
-        [Fact]
-        public void FalseIsStored()
-        {
-            // Arrange, Act
-            InfinitePageData<int> page = new(null, null, false);
-
-            // Assert
-            Assert.False(page.HasNextPage);
         }
     }
 
@@ -210,49 +147,45 @@ public static class InfinitePageDataTests
     public class RealisticScenarios
     {
         [Fact]
-        public void FullPage_WithCursor_HasNextPage_True()
+        public void FullPage_WithCursor()
         {
             // Arrange
             List<int> entities = SomeEntities();
             DynamicCursor cursor = SomeCursor();
 
             // Act
-            InfinitePageData<int> page = new(entities, cursor, hasNextPage: true);
+            InfinitePageData<int> page = new(entities, cursor);
 
             // Assert
             Assert.Equal(entities, page.Entities);
             Assert.Same(cursor, page.NextCursor);
-            Assert.NotNull(page.NextCursorToken);
-            Assert.Equal(cursor.Encode(), page.NextCursorToken);
             Assert.True(page.HasNextPage);
         }
 
         [Fact]
-        public void LastPage_NoCursor_HasNextPage_False()
+        public void LastPage_NoCursor()
         {
             // Arrange
             List<int> entities = SomeEntities();
 
             // Act
-            InfinitePageData<int> page = new(entities, nextCursor: null, hasNextPage: false);
+            InfinitePageData<int> page = new(entities, nextCursor: null);
 
             // Assert
             Assert.Equal(entities, page.Entities);
             Assert.Null(page.NextCursor);
-            Assert.Null(page.NextCursorToken);
             Assert.False(page.HasNextPage);
         }
 
         [Fact]
-        public void EmptyResult_NoCursor_HasNextPage_False()
+        public void EmptyResult_NoCursor()
         {
             // Arrange, Act
-            InfinitePageData<int> page = new([], null, hasNextPage: false);
+            InfinitePageData<int> page = new([], null);
 
             // Assert
             Assert.Empty(page.Entities);
             Assert.Null(page.NextCursor);
-            Assert.Null(page.NextCursorToken);
             Assert.False(page.HasNextPage);
         }
     }
@@ -275,44 +208,33 @@ public static class InfinitePageDataTests
         }
 
         [Fact]
-        public void SameHasNextPage_DifferentEntities_AreNotEqual()
+        public void DifferentEntities_SameCursor_AreNotEqual()
         {
             // Arrange
-            InfinitePageData<int> a = new([1, 2], null, false);
-            InfinitePageData<int> b = new([3, 4], null, false);
+            InfinitePageData<int> a = new([1, 2], null);
+            InfinitePageData<int> b = new([3, 4], null);
 
             // Assert
             Assert.NotEqual(a, b);
         }
 
         [Fact]
-        public void SameEntities_DifferentHasNextPage_AreNotEqual()
+        public void SameEntities_DifferentCursors_AreNotEqual()
         {
             // Arrange
-            InfinitePageData<int> a = new([1], null, true);
-            InfinitePageData<int> b = new([1], null, false);
+            InfinitePageData<int> a = new([1], new DynamicCursor([1, "a"]));
+            InfinitePageData<int> b = new([1], new DynamicCursor([1, "b"]));
 
             // Assert
             Assert.NotEqual(a, b);
         }
 
         [Fact]
-        public void SameEntities_SameHasNextPag_DifferentCursors_AreNotEqual()
+        public void SameEntities_SameCursors_AreEqual()
         {
             // Arrange
-            InfinitePageData<int> a = new([1], new DynamicCursor([1, "a"]), true);
-            InfinitePageData<int> b = new([1], new DynamicCursor([1, "b"]), true);
-
-            // Assert
-            Assert.NotEqual(a, b);
-        }
-
-        [Fact]
-        public void SameEntities_SameCursors_SameHasNextPag_AreEqual()
-        {
-            // Arrange
-            InfinitePageData<int> a = new([1], new DynamicCursor([1, "a"]), true);
-            InfinitePageData<int> b = new([1], new DynamicCursor([1, "a"]), true);
+            InfinitePageData<int> a = new([1], new DynamicCursor([1, "a"]));
+            InfinitePageData<int> b = new([1], new DynamicCursor([1, "a"]));
 
             // Assert
             Assert.Equal(a, b);
@@ -325,25 +247,23 @@ public static class InfinitePageDataTests
 
     public class JsonRoundTrip
     {
+        private readonly JsonSerializerOptions _serializerOptions = new() { Converters = { new DynamicCursorJsonConverter() } };
+
         [Fact]
         public void SurviveRoundTrip()
         {
             // Arrange
             DynamicCursor cursor = new([(byte)42, "abc"]);
-            InfinitePageData<int> page = new([10, 20, 30], cursor, true);
-
-            JsonSerializerOptions serializerOptions = new();
-            serializerOptions.Converters.Add(new DynamicCursorJsonConverter());
+            InfinitePageData<int> page = new([10, 20, 30], cursor);
 
             // Act
-            string json = JsonSerializer.Serialize(page, serializerOptions);
-            InfinitePageData<int>? restored = JsonSerializer.Deserialize<InfinitePageData<int>>(json, serializerOptions)!;
+            string json = JsonSerializer.Serialize(page, _serializerOptions);
+            InfinitePageData<int>? restored = JsonSerializer.Deserialize<InfinitePageData<int>>(json, _serializerOptions)!;
 
             // Assert
             Assert.Equal(page, restored);
             Assert.True(restored.Entities.SequenceEqual([10, 20, 30]));
             Assert.Equal(page.NextCursor, restored.NextCursor);
-            Assert.Equal(page.NextCursorToken, restored.NextCursorToken);
             Assert.True(restored.HasNextPage);
         }
 
@@ -351,20 +271,16 @@ public static class InfinitePageDataTests
         public void NullCursorToken_SurvivesRoundTrip()
         {
             // Arrange
-            InfinitePageData<int> page = new(null, null, false);
-
-            JsonSerializerOptions serializerOptions = new();
-            serializerOptions.Converters.Add(new DynamicCursorJsonConverter());
+            InfinitePageData<int> page = new(null, null);
 
             // Act
-            string json = JsonSerializer.Serialize(page, serializerOptions);
-            InfinitePageData<int>? restored = JsonSerializer.Deserialize<InfinitePageData<int>>(json, serializerOptions)!;
+            string json = JsonSerializer.Serialize(page, _serializerOptions);
+            InfinitePageData<int>? restored = JsonSerializer.Deserialize<InfinitePageData<int>>(json, _serializerOptions)!;
 
             // Assert
             Assert.Equal(page, restored);
             Assert.Empty(restored.Entities);
             Assert.Null(restored.NextCursor);
-            Assert.Null(restored.NextCursorToken);
             Assert.False(restored.HasNextPage);
         }
 
@@ -372,15 +288,14 @@ public static class InfinitePageDataTests
         public void SerializedJson_ContainsExpectedPropertyNames()
         {
             // Arrange
-            InfinitePageData<int> page = new([1], SomeCursor(), true);
+            InfinitePageData<int> page = new([1], SomeCursor());
 
             // Act
-            string json = JsonSerializer.Serialize(page);
+            string json = JsonSerializer.Serialize(page, _serializerOptions);
 
             // Assert
             Assert.Contains(nameof(InfinitePageData<>.Entities), json);
             Assert.Contains(nameof(InfinitePageData<>.NextCursor), json);
-            Assert.Contains(nameof(InfinitePageData<>.NextCursorToken), json);
             Assert.Contains(nameof(InfinitePageData<>.HasNextPage), json);
         }
     }

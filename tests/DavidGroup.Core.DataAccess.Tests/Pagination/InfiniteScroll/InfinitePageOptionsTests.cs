@@ -22,80 +22,6 @@ public static class InfinitePageOptionsTests
         return results;
     }
 
-    private static DynamicCursor SomeCursor() => new([1, "abc"]);
-
-    // =========================================================================
-    // Constructor(int size, DynamicCursor? searchAfter)
-    // =========================================================================
-
-    public class CtorSizeDynamicCursor
-    {
-        [Fact]
-        public void Sets_SizeAndCursor_Correctly()
-        {
-            // Arrange
-            DynamicCursor cursor = SomeCursor();
-
-            // Act
-            InfinitePageOptions opts = new(10, cursor);
-
-            // Assert
-            Assert.Equal(10, opts.Size);
-            Assert.Same(cursor, opts.SearchAfter);
-        }
-
-        [Fact]
-        public void ValidSize_SearchAfterToken_IsNull()
-        {
-            // Arrange, Act
-            InfinitePageOptions opts = new(10, SomeCursor());
-
-            // Assert
-            Assert.Null(opts.SearchAfterToken);
-        }
-
-        [Fact]
-        public void NullCursor_IsAllowed()
-        {
-            // Arrange, Act
-            InfinitePageOptions opts = new(5, (DynamicCursor?)null);
-
-            // Assert
-            Assert.Null(opts.SearchAfter);
-        }
-
-        [Theory]
-        [InlineData(0)]
-        [InlineData(-1)]
-        [InlineData(int.MinValue)]
-        public void SizeLessThanOrEqualToZero_ThrowsArgumentException(int size)
-        {
-            // Arrange, Act, Assert
-            Assert.Throws<ArgumentException>(() =>
-                new InfinitePageOptions(size, SomeCursor()));
-        }
-
-        [Fact]
-        public void ZeroSize_ExceptionNames_SizeParameter()
-        {
-            // Arrange, Act, Assert
-            ArgumentException ex = Assert.Throws<ArgumentException>(() =>
-                new InfinitePageOptions(0, SomeCursor()));
-
-            Assert.Equal("size", ex.ParamName);
-        }
-
-        [Fact]
-        public void ZeroSize_ExceptionMessage_ContainsExpectedText()
-        {
-            // Arrange, Act, Assert
-            ArgumentException ex = Assert.Throws<ArgumentException>(() =>
-                new InfinitePageOptions(0, SomeCursor()));
-
-            Assert.Contains(PaginationErrorMessages.PageSizeShouldBeGreaterThanZero, ex.Message);
-        }
-    }
-
     // =========================================================================
     // Constructor(int size, string? searchAfterToken)
     // =========================================================================
@@ -118,20 +44,10 @@ public static class InfinitePageOptionsTests
         }
 
         [Fact]
-        public void ValidSize_SearchAfter_IsNull()
-        {
-            // Arrange, Act
-            InfinitePageOptions opts = new(20, "some-token");
-
-            // Assert
-            Assert.Null(opts.SearchAfter);
-        }
-
-        [Fact]
         public void NullToken_IsAllowed()
         {
             // Arrange, Act
-            InfinitePageOptions opts = new(5, (string?)null);
+            InfinitePageOptions opts = new(5, null);
 
             // Assert
             Assert.Null(opts.SearchAfterToken);
@@ -255,7 +171,6 @@ public static class InfinitePageOptionsTests
 
             // Assert
             Assert.Equal(0, opts.Size);
-            Assert.Null(opts.SearchAfter);
             Assert.Null(opts.SearchAfterToken);
         }
     }
@@ -311,68 +226,29 @@ public static class InfinitePageOptionsTests
         {
             // Arrange
             InfinitePageOptions original = new(25, "cursor-token");
-            string json = JsonSerializer.Serialize(original);
 
             // Act
+            string json = JsonSerializer.Serialize(original);
             InfinitePageOptions? restored = JsonSerializer.Deserialize<InfinitePageOptions>(json);
 
             // Assert
             Assert.NotNull(restored);
             Assert.Equal(25, restored.Size);
             Assert.Equal("cursor-token", restored.SearchAfterToken);
-            Assert.Null(restored.SearchAfter);
         }
 
         [Fact]
         public void NullStringCursor_SurvivesJsonRoundTrip()
         {
             // Arrange
-            InfinitePageOptions original = new(5, (string?)null);
-            string json = JsonSerializer.Serialize(original);
+            InfinitePageOptions original = new(5, null);
 
             // Act
+            string json = JsonSerializer.Serialize(original);
             InfinitePageOptions? restored = JsonSerializer.Deserialize<InfinitePageOptions>(json);
 
             // Assert
             Assert.NotNull(restored);
-            Assert.Null(restored.SearchAfter);
-            Assert.Null(restored.SearchAfterToken);
-        }
-
-        [Fact]
-        public void DynamicCursor_SurvivesJsonRoundTrip()
-        {
-            // Arrange
-            DynamicCursor cursor = new([(byte)1, "abc"]);
-            InfinitePageOptions original = new(25, cursor);
-
-            JsonSerializerOptions serializerOptions = new();
-            serializerOptions.Converters.Add(new DynamicCursorJsonConverter());
-            string json = JsonSerializer.Serialize(original, serializerOptions);
-
-            // Act
-            InfinitePageOptions? restored = JsonSerializer.Deserialize<InfinitePageOptions>(json, serializerOptions);
-
-            // Assert
-            Assert.NotNull(restored);
-            Assert.Equal(25, restored.Size);
-            Assert.Equal(cursor, restored.SearchAfter);
-            Assert.Null(restored.SearchAfterToken);
-        }
-
-        [Fact]
-        public void DynamicStringCursor_SurvivesJsonRoundTrip()
-        {
-            // Arrange
-            InfinitePageOptions original = new(5, (DynamicCursor?)null);
-            string json = JsonSerializer.Serialize(original);
-
-            // Act
-            InfinitePageOptions? restored = JsonSerializer.Deserialize<InfinitePageOptions>(json);
-
-            // Assert
-            Assert.NotNull(restored);
-            Assert.Null(restored.SearchAfter);
             Assert.Null(restored.SearchAfterToken);
         }
     }

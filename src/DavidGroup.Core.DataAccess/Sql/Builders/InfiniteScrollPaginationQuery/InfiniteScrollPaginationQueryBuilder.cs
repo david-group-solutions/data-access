@@ -108,10 +108,9 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity>(IQueryable<TEntity> q
                 "No ordering specifications were found. At least one ordering specification must be specified.");
         }
 
-        if (pageOptions.SearchAfter is not null || pageOptions.SearchAfterToken is not null)
+        if (pageOptions.SearchAfterToken is not null)
         {
-            DynamicCursor? lastCursor = pageOptions.SearchAfter
-                                        ?? DynamicCursorTokenizer.Decode(pageOptions.SearchAfterToken);
+            DynamicCursor? lastCursor = DynamicCursorTokenizer.Decode(pageOptions.SearchAfterToken);
 
             if (lastCursor is not null)
             {
@@ -124,24 +123,23 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity>(IQueryable<TEntity> q
 
         Query = OrderingSpecification<TEntity>.Apply(Query, orderingSpecifications);
 
-        List<TResult> temporaryResults = await Query
+        List<TResult> items = await Query
             .Select(selector ??
                     (Expression<Func<TEntity, TResult>>)(object)
                     (Expression<Func<TEntity, TEntity>>)(e => e))
             .Take(pageOptions.Size + 1)
             .ToListAsync(cancellationToken);
 
-        bool hasMore = temporaryResults.Count > pageOptions.Size;
+        bool hasMore = items.Count > pageOptions.Size;
 
         DynamicCursor? nextCursor = null;
         if (hasMore)
         {
+            items.RemoveAt(items.Count - 1);
+
             if (nextCursorSelector is not null)
             {
-                object[] nextCursorValues = temporaryResults
-                    .Select(nextCursorSelector)
-                    .Last();
-
+                object[] nextCursorValues = nextCursorSelector.Invoke(items.Last());
                 nextCursor = new DynamicCursor(nextCursorValues);
             }
             else
@@ -151,10 +149,6 @@ public class InfiniteScrollPaginationQueryBuilder<TEntity>(IQueryable<TEntity> q
             }
         }
 
-        return new InfinitePageData<TResult>(
-            temporaryResults.Take(pageOptions.Size).ToList(),
-            nextCursor,
-            hasMore
-        );
+        return new InfinitePageData<TResult>(items, nextCursor);
     }
 }

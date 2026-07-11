@@ -1,6 +1,6 @@
 using DavidGroup.Core.DataAccess.Sql.Entities;
 
-namespace DavidGroup.Core.DataAccess.Benchmarks.Assets;
+namespace DavidGroup.Core.DataAccess.Benchmarks.Sql.Assets;
 
 public class BenchmarkEntity : Entity<int>
 {

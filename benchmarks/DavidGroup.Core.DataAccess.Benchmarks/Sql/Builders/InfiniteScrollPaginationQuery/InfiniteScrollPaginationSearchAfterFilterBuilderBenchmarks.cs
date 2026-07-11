@@ -4,7 +4,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Order;
 
-using DavidGroup.Core.DataAccess.Benchmarks.Assets;
+using DavidGroup.Core.DataAccess.Benchmarks.Sql.Assets;
 using DavidGroup.Core.DataAccess.Pagination.InfiniteScroll;
 using DavidGroup.Core.DataAccess.Sql.Builders;
 using DavidGroup.Core.DataAccess.Sql.Builders.InfiniteScrollPaginationQuery;
@@ -22,7 +22,7 @@ public class InfiniteScrollPaginationSearchAfterFilterBuilderBenchmarks
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("Build")]
-    public Expression<Func<BenchmarkEntity, bool>> BuildSingleColOrder()
+    public Expression<Func<BenchmarkEntity, bool>> InfiniteScrollPaginationSearchAfterFilterBuilder_BuildSingleColOrder()
     {
         IReadOnlyList<OrderingSpecification<BenchmarkEntity>> orderingSpecifications =
         [
@@ -36,7 +36,7 @@ public class InfiniteScrollPaginationSearchAfterFilterBuilderBenchmarks
 
     [Benchmark]
     [BenchmarkCategory("Build")]
-    public Expression<Func<BenchmarkEntity, bool>> BuildMultipleColOrder()
+    public Expression<Func<BenchmarkEntity, bool>> InfiniteScrollPaginationSearchAfterFilterBuilder_BuildMultipleColOrder()
     {
         IReadOnlyList<OrderingSpecification<BenchmarkEntity>> orderingSpecifications =
         [

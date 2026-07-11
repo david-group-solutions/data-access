@@ -22,14 +22,11 @@ public record InfinitePageData<T>
     /// </summary>
     /// <param name="entities">The entities retrieved for the current page.</param>
     /// <param name="nextCursor">The dynamic cursor to be used in the next query.</param>
-    /// <param name="hasNextPage">Indicates whether there are more pages available after this one.</param>
-    public InfinitePageData(IEnumerable<T>? entities, DynamicCursor? nextCursor, bool hasNextPage)
+    public InfinitePageData(IEnumerable<T>? entities, DynamicCursor? nextCursor)
     {
         Entities = entities?.ToImmutableList() ?? [];
         NextCursor = nextCursor;
-        if (nextCursor is not null)
-            NextCursorToken = nextCursor.Encode();
-        HasNextPage = hasNextPage;
+        HasNextPage = nextCursor is not null;
     }
 
     /// <summary>
@@ -43,12 +40,6 @@ public record InfinitePageData<T>
     /// </summary>
     [JsonInclude]
     public DynamicCursor? NextCursor { get; private init; }
-
-    /// <summary>
-    /// Gets the encoded string token representing the <see cref="NextCursor"/>, suitable for use in the next page request.
-    /// </summary>
-    [JsonInclude]
-    public string? NextCursorToken { get; private init; }
 
     /// <summary>
     /// Gets a value indicating whether there are more pages available after this page.
@@ -71,7 +62,6 @@ public record InfinitePageData<T>
 
         return Entities.SequenceEqual(other.Entities) &&
                (NextCursor is null || (NextCursor is not null && NextCursor.Equals(other.NextCursor))) &&
-               NextCursorToken == other.NextCursorToken &&
                HasNextPage == other.HasNextPage;
     }
 
@@ -87,7 +77,6 @@ public record InfinitePageData<T>
             hash.Add(entity);
 
         hash.Add(NextCursor);
-        hash.Add(NextCursorToken);
         hash.Add(HasNextPage);
 
         return hash.ToHashCode();
