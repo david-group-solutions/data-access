@@ -224,7 +224,6 @@ public static class BaseReadonlyServiceTests
             // Assert
             Assert.True(result.Succeeded);
             Assert.NotNull(result.Value.NextCursor);
-            Assert.NotNull(result.Value.NextCursorToken);
             Assert.Equal(2, result.Value.Entities.Count);
             Assert.Contains(result.Value.Entities, dto => dto.Name == "Gamma");
             Assert.Contains(result.Value.Entities, dto => dto.Name == "Delta");

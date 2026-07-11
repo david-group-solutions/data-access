@@ -42,18 +42,11 @@ public static class InfiniteScrollPaginationSearchAfterFilterBuilder
             Expression<Func<TEntity, object>> orderSelector = orderingSpecifications[i].OrderBy;
             Expression orderMember = UnWrap(orderSelector.Body);
 
-            Type expectedCursorValueType = orderMember.Type;
-            object? cursorValue = lastCursor.Values[i];
-
-            if (cursorValue is null)
-                if (expectedCursorValueType.IsValueType && Nullable.GetUnderlyingType(expectedCursorValueType) is null)
-                    throw new InvalidOperationException("Invalid cursor provided.");
-
-            if (!expectedCursorValueType.IsInstanceOfType(cursorValue))
+            if (!IsValidCursorValue(orderMember.Type, lastCursor.Values[i]))
                 throw new InvalidOperationException("Invalid cursor provided.");
 
             orderMember = new ReplaceParameterVisitor(orderSelector.Parameters[0], parameter).Visit(orderMember);
-            ConstantExpression orderValue = Expression.Constant(cursorValue);
+            ConstantExpression orderValue = Expression.Constant(lastCursor.Values[i]);
 
             BinaryExpression comparison = BuildComparison(orderMember, orderValue, !orderingSpecifications[i].IsDescending);
 
@@ -80,6 +73,26 @@ public static class InfiniteScrollPaginationSearchAfterFilterBuilder
             : body;
 
     /// <summary>
+    /// Validates cursor value against expected type.
+    /// </summary>
+    /// <param name="expectedType">The type which we expect the <paramref name="cursorValue"/> to be.</param>
+    /// <param name="cursorValue">The current value of cursor which is going to be validated.</param>
+    /// <returns><see langword="true"/> if the <paramref name="cursorValue"/> is valid otherwise <see langword="false"/>.</returns>
+    private static bool IsValidCursorValue(Type expectedType, object? cursorValue)
+    {
+        if (cursorValue is null)
+        {
+            if (expectedType.IsValueType && Nullable.GetUnderlyingType(expectedType) is null)
+                return false;
+        }
+
+        if (expectedType.IsInstanceOfType(cursorValue))
+            return true;
+
+        return false;
+    }
+
+    /// <summary>
     /// Builds a comparison expression between an entity member and a constant value.
     /// </summary>
     /// <param name="orderMember">The expression representing the entity property.</param>
@@ -88,17 +101,6 @@ public static class InfiniteScrollPaginationSearchAfterFilterBuilder
     /// <returns>A <see cref="BinaryExpression"/> representing the comparison.</returns>
     private static BinaryExpression BuildComparison(Expression orderMember, Expression orderValue, bool asc)
     {
-        // Support for StronglyTypedId
-        if (orderMember.Type.Name.EndsWith("Id") && orderMember.Type != typeof(Guid))
-        {
-            object? stronglyTypedId = Activator.CreateInstance(orderMember.Type, ((ConstantExpression)orderValue).Value);
-            ConstantExpression stronglyTypedIdExpression = Expression.Constant(stronglyTypedId);
-
-            return asc
-                ? Expression.GreaterThan(orderMember, stronglyTypedIdExpression)
-                : Expression.LessThan(orderMember, stronglyTypedIdExpression);
-        }
-
         if (orderMember.Type == typeof(string))
         {
             MethodInfo compareMethod = typeof(string).GetMethod(nameof(string.Compare), [typeof(string), typeof(string)])!;

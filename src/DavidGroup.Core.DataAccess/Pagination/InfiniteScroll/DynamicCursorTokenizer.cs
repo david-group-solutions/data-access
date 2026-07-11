@@ -1,6 +1,5 @@
-using System.Globalization;
-using System.Numerics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DavidGroup.Core.DataAccess.Pagination.InfiniteScroll;
 
@@ -10,6 +9,11 @@ namespace DavidGroup.Core.DataAccess.Pagination.InfiniteScroll;
 /// </summary>
 public static class DynamicCursorTokenizer
 {
+    private static readonly JsonSerializerOptions Options = new()
+    {
+        NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
+    };
+
     /// <summary>
     /// Encodes a <see cref="DynamicCursor"/> into a Base64 string token.
     /// This token can be used by clients to request the next page.
@@ -18,8 +22,13 @@ public static class DynamicCursorTokenizer
     /// <returns>A Base64-encoded string representing the cursor.</returns>
     public static string Encode(this DynamicCursor cursor)
     {
-        string json = JsonSerializer.Serialize(cursor.Values);
-        return Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(json));
+        SerializableValue[] items = cursor.Values
+            .Select(SerializableValue.Create)
+            .ToArray();
+
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(items, Options);
+
+        return Convert.ToBase64String(bytes);
     }
 
     /// <summary>
@@ -32,90 +41,35 @@ public static class DynamicCursorTokenizer
         if (string.IsNullOrEmpty(token))
             return null;
 
-        string json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(token));
-        object?[] jsonElements = JsonSerializer.Deserialize<object?[]>(json) ?? [];
+        byte[] bytes = Convert.FromBase64String(token);
 
-        object?[] values = new object?[jsonElements.Length];
-        for (int i = 0; i < jsonElements.Length; i++)
-            values[i] = ConvertJsonElement(jsonElements[i]);
+        SerializableValue[] items = JsonSerializer.Deserialize<SerializableValue[]>(bytes, Options)!;
 
-        return new DynamicCursor(values);
+        return new DynamicCursor(items.Select(i => i.ToObject()).ToArray());
     }
 
-    /// <summary>
-    /// Converts a <see cref="JsonElement"/> or object to a .NET type.
-    /// Handles numbers, strings, booleans, and nulls.
-    /// </summary>
-    /// <param name="obj">The object or <see cref="JsonElement"/> to convert.</param>
-    /// <returns>The converted .NET value.</returns>
-    /// <exception cref="NotSupportedException">Thrown if the <see cref="JsonElement"/> type is unsupported.</exception>
-    private static object? ConvertJsonElement(object? obj)
+    private sealed class SerializableValue
     {
-        if (obj is not JsonElement je) return obj;
+        public string? Type { get; init; }
+        public JsonElement Value { get; init; }
 
-        return je.ValueKind switch
+        public static SerializableValue Create(object? value)
         {
-            JsonValueKind.String => ConvertJsonString(je),
-            JsonValueKind.Number => ConvertJsonNumber(je),
-            JsonValueKind.True => true,
-            JsonValueKind.False => false,
-            JsonValueKind.Null => null,
-            JsonValueKind.Undefined => null,
-            _ => throw new NotSupportedException($"Unsupported JSON element {je.ValueKind}")
-        };
-    }
+            return new SerializableValue
+            {
+                Type = value?.GetType().AssemblyQualifiedName,
+                Value = JsonSerializer.SerializeToElement(value, Options)
+            };
+        }
 
-    private static object? ConvertJsonString(JsonElement je)
-    {
-        string? s = je.GetString();
+        public object? ToObject()
+        {
+            if (Type is null)
+                return null;
 
-        if (s is null)
-            return null;
+            Type type = System.Type.GetType(Type)!;
 
-        if (Guid.TryParse(s, out Guid guid))
-            return guid;
-
-        if (DateOnly.TryParse(s, out DateOnly dateOnly))
-            return dateOnly;
-
-        if (TimeOnly.TryParse(s, out TimeOnly timeOnly))
-            return timeOnly;
-
-        // NOTE: There is an ambiguity between TimeSpan and TimeOnly.
-        //       Currently, it's not possible to make the round trip unless we preserve the actual type in encoded string.
-        //
-        // if (TimeSpan.TryParse(s, out TimeSpan ts))
-        //     return ts;
-
-        if (DateTime.TryParse(s, null, DateTimeStyles.RoundtripKind, out DateTime dt))
-            return dt;
-
-        if (s.Length == 1)
-            return s[0];
-
-        return s;
-    }
-
-    private static object ConvertJsonNumber(JsonElement je)
-    {
-        if (je.TryGetByte(out byte b)) return b;
-        if (je.TryGetSByte(out sbyte sb)) return sb;
-        if (je.TryGetInt16(out short s)) return s;
-        if (je.TryGetUInt16(out ushort us)) return us;
-        if (je.TryGetInt32(out int i)) return i;
-        if (je.TryGetUInt32(out uint ui)) return ui;
-        if (je.TryGetInt64(out long l)) return l;
-        if (je.TryGetUInt64(out ulong ul)) return ul;
-
-        if (je.TryGetDecimal(out decimal dec))
-            return dec;
-
-        if (je.TryGetDouble(out double dbl))
-            return dbl;
-
-        if (BigInteger.TryParse(je.GetRawText(), out BigInteger big))
-            return big;
-
-        return je.GetRawText();
+            return JsonSerializer.Deserialize(Value.GetRawText(), type, Options);
+        }
     }
 }

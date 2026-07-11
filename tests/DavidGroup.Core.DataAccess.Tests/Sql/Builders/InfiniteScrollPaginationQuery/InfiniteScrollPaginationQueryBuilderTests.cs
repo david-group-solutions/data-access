@@ -187,9 +187,8 @@ public static class InfiniteScrollPaginationQueryBuilderTests
             Assert.Equal(2, result.Entities[1].Id);
 
             Assert.NotNull(result.NextCursor);
-            Assert.NotNull(result.NextCursorToken);
 
-            Assert.Equal([3], result.NextCursor.Values);
+            Assert.Equal([2], result.NextCursor.Values);
         }
 
         [Fact]
@@ -210,7 +209,6 @@ public static class InfiniteScrollPaginationQueryBuilderTests
             Assert.Equal(4, result.Entities.Count);
 
             Assert.Null(result.NextCursor);
-            Assert.Null(result.NextCursorToken);
         }
 
         [Fact]
@@ -223,7 +221,7 @@ public static class InfiniteScrollPaginationQueryBuilderTests
             InfinitePageOptions options = new()
             {
                 Size = 2,
-                SearchAfter = new DynamicCursor([2])
+                SearchAfterToken = new DynamicCursor([2]).Encode()
             };
 
             IReadOnlyList<OrderingSpecification<TestEntity>> ordering = [new(x => x.Id, false)];
@@ -238,7 +236,6 @@ public static class InfiniteScrollPaginationQueryBuilderTests
             Assert.Equal(4, result.Entities[1].Id);
 
             Assert.Null(result.NextCursor);
-            Assert.Null(result.NextCursorToken);
         }
 
         [Fact]
@@ -261,9 +258,8 @@ public static class InfiniteScrollPaginationQueryBuilderTests
 
             // Assert
             Assert.NotNull(result.NextCursor);
-            Assert.NotNull(result.NextCursorToken);
 
-            Assert.Equal([3], result.NextCursor.Values);
+            Assert.Equal([2], result.NextCursor.Values);
         }
     }
 }

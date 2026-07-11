@@ -1,13 +1,9 @@
-using System.Linq.Dynamic.Core;
-
 using BenchmarkDotNet.Attributes;
 
-using DavidGroup.Core.DataAccess.Benchmarks.Assets;
+using DavidGroup.Core.DataAccess.Benchmarks.Sql.Assets;
 using DavidGroup.Core.DataAccess.Pagination;
 using DavidGroup.Core.DataAccess.Results.Generic;
 using DavidGroup.Core.DataAccess.Sql.Builders;
-
-using Microsoft.EntityFrameworkCore;
 
 namespace DavidGroup.Core.DataAccess.Benchmarks.Sql.Repositories;
 
@@ -21,35 +17,15 @@ public class OffsetPaginationBenchmarks : RepositoryBenchmarksBase
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("Offset: first page")]
-    public async Task<PageData<BenchmarkEntity>> OffsetFirstPageHardcoded() =>
-        await OffsetHardcodedAsync(page: 1);
-
-    [Benchmark]
-    [BenchmarkCategory("Offset: first page")]
-    public async Task<PageData<BenchmarkEntity>> OffsetFirstPageDynamicLinq() =>
-        await OffsetDynamicLinqAsync(page: 1, SingleColumnOrder);
-
-    [Benchmark]
-    [BenchmarkCategory("Offset: first page")]
-    public async Task<PageData<BenchmarkEntity>> OffsetFirstPageDataAccessWithOrderingSpecifications() =>
-        await OffsetDataAccessWithOrderingSpecificationsAsync(page: 1, SingleColumnOrder);
+    public async Task<PageData<BenchmarkEntity>> OffsetPagination_FirstPage() =>
+        await OffsetPaginationAsync(page: 1, SingleColumnOrder);
 
     // Multiple Column Ordering
 
-    [Benchmark(Baseline = true)]
-    [BenchmarkCategory("Offset: first page (multi-column)")]
-    public async Task<PageData<BenchmarkEntity>> OffsetFirstPageHardcodedMultiColOrder() =>
-        await OffsetHardcodedMultiColOrderAsync(page: 1);
-
     [Benchmark]
-    [BenchmarkCategory("Offset: first page (multi-column)")]
-    public async Task<PageData<BenchmarkEntity>> OffsetFirstPageDynamicLinqMultiColOrder() =>
-        await OffsetDynamicLinqAsync(page: 1, MultiColumnOrder);
-
-    [Benchmark]
-    [BenchmarkCategory("Offset: first page (multi-column)")]
-    public async Task<PageData<BenchmarkEntity>> OffsetFirstPageDataAccessWithOrderingSpecificationsMultiColOrder() =>
-        await OffsetDataAccessWithOrderingSpecificationsAsync(page: 1, MultiColumnOrder);
+    [BenchmarkCategory("Offset: first page")]
+    public async Task<PageData<BenchmarkEntity>> OffsetPagination_FirstPage_MultiColOrder() =>
+        await OffsetPaginationAsync(page: 1, MultiColumnOrder);
 
     // ------------------------------------------------------------------
     // Offset pagination — deep page.
@@ -58,105 +34,25 @@ public class OffsetPaginationBenchmarks : RepositoryBenchmarksBase
     // invisible if you only ever benchmark page 1.
     // ------------------------------------------------------------------
 
+    // Single Column Ordering
+
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("Offset: deep page")]
-    public async Task<PageData<BenchmarkEntity>> OffsetDeepPageHardcoded() =>
-        await OffsetHardcodedAsync(page: MidPage);
-
-    [Benchmark]
-    [BenchmarkCategory("Offset: deep page")]
-    public async Task<PageData<BenchmarkEntity>> OffsetDeepPageDynamicLinq() =>
-        await OffsetDynamicLinqAsync(page: MidPage, SingleColumnOrder);
-
-    [Benchmark]
-    [BenchmarkCategory("Offset: deep page")]
-    public async Task<PageData<BenchmarkEntity>> OffsetDeepPageDataAccessWithOrderingSpecifications() =>
-        await OffsetDataAccessWithOrderingSpecificationsAsync(page: MidPage, SingleColumnOrder);
+    public async Task<PageData<BenchmarkEntity>> OffsetPagination_DeepPage() =>
+        await OffsetPaginationAsync(page: MidPage, SingleColumnOrder);
 
     // Multiple Column Ordering
 
-    [Benchmark(Baseline = true)]
-    [BenchmarkCategory("Offset: deep page (multi-column)")]
-    public async Task<PageData<BenchmarkEntity>> OffsetDeepPageHardcodedMultiColOrder() =>
-        await OffsetHardcodedMultiColOrderAsync(page: MidPage);
-
     [Benchmark]
-    [BenchmarkCategory("Offset: deep page (multi-column)")]
-    public async Task<PageData<BenchmarkEntity>> OffsetDeepPageDynamicLinqMultiColOrder() =>
-        await OffsetDynamicLinqAsync(page: MidPage, MultiColumnOrder);
-
-    [Benchmark]
-    [BenchmarkCategory("Offset: deep page (multi-column)")]
-    public async Task<PageData<BenchmarkEntity>> OffsetDeepPageDataAccessWithOrderingSpecificationsMultiColOrder() =>
-        await OffsetDataAccessWithOrderingSpecificationsAsync(page: MidPage, MultiColumnOrder);
+    [BenchmarkCategory("Offset: deep page")]
+    public async Task<PageData<BenchmarkEntity>> OffsetPagination_DeepPage_MultiColOrder() =>
+        await OffsetPaginationAsync(page: MidPage, MultiColumnOrder);
 
     // ------------------------------------------------------------------
     // Shared functions
     // ------------------------------------------------------------------
 
-    private async Task<PageData<BenchmarkEntity>> OffsetHardcodedAsync(int page)
-    {
-        PageOptions options = new()
-        {
-            Page = page,
-            Size = PageSize
-        };
-
-        List<BenchmarkEntity> entities = await DbContext.BenchmarkEntities
-            .AsNoTracking()
-            .OrderByDescending(e => e.Id)
-            .Skip((options.Page - 1) * options.Size)
-            .Take(options.Size)
-            .ToListAsync();
-
-        int count = await DbContext.BenchmarkEntities.CountAsync();
-
-        return new PageData<BenchmarkEntity>(entities, count, options);
-    }
-
-    private async Task<PageData<BenchmarkEntity>> OffsetHardcodedMultiColOrderAsync(int page)
-    {
-        PageOptions options = new()
-        {
-            Page = page,
-            Size = PageSize
-        };
-
-        List<BenchmarkEntity> entities = await DbContext.BenchmarkEntities
-            .AsNoTracking()
-            .OrderByDescending(e => e.Year)
-            .ThenBy(e => e.Name)
-            .ThenByDescending(e => e.Id)
-            .Skip((options.Page - 1) * options.Size)
-            .Take(options.Size)
-            .ToListAsync();
-
-        int count = await DbContext.BenchmarkEntities.CountAsync();
-
-        return new PageData<BenchmarkEntity>(entities, count, options);
-    }
-
-    private async Task<PageData<BenchmarkEntity>> OffsetDynamicLinqAsync(int page, string orderBy)
-    {
-        PageOptions options = new()
-        {
-            Page = page,
-            Size = PageSize
-        };
-
-        List<BenchmarkEntity> entities = await DbContext.BenchmarkEntities
-            .AsNoTracking()
-            .OrderBy(orderBy)
-            .Skip((options.Page - 1) * options.Size)
-            .Take(options.Size)
-            .ToListAsync();
-
-        int count = await DbContext.BenchmarkEntities.CountAsync();
-
-        return new PageData<BenchmarkEntity>(entities, count, options);
-    }
-
-    private async Task<PageData<BenchmarkEntity>> OffsetDataAccessWithOrderingSpecificationsAsync(int page, string orderBy)
+    private async Task<PageData<BenchmarkEntity>> OffsetPaginationAsync(int page, string orderBy)
     {
         PageOptions options = new()
         {

@@ -4,7 +4,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Order;
 
-using DavidGroup.Core.DataAccess.Benchmarks.Assets;
+using DavidGroup.Core.DataAccess.Benchmarks.Sql.Assets;
 using DavidGroup.Core.DataAccess.Pagination.InfiniteScroll;
 using DavidGroup.Core.DataAccess.Sql.Builders;
 
@@ -90,7 +90,7 @@ public abstract class RepositoryBenchmarksBase
         Func<BenchmarkEntity, object[]> nextCursorSelector)
     {
         InfinitePageData<BenchmarkEntity> page = await BenchmarkRepository.GetAllAsync(
-            options: new InfinitePageOptions(PageSize, searchAfter: null),
+            options: new InfinitePageOptions(PageSize, null),
             selector: e => e,
             orderingSpecifications: orderBy
         );
@@ -98,7 +98,7 @@ public abstract class RepositoryBenchmarksBase
         for (int i = 0; i < MidPage && page.HasNextPage; i++)
         {
             page = await BenchmarkRepository.GetAllAsync(
-                options: new InfinitePageOptions(PageSize, searchAfter: page.NextCursor),
+                options: new InfinitePageOptions(PageSize, page.NextCursor?.Encode()),
                 selector: e => e,
                 orderingSpecifications: orderBy,
                 nextCursorSelector: nextCursorSelector
