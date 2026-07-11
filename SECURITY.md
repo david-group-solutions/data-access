@@ -4,11 +4,10 @@
 
 The following table outlines which versions of our projects are currently receiving security updates and patches.
 
-| Version | Supported                 |
-| ------- | ------------------------- |
-| Latest  | ✅ Yes (main branch)      |
-| Pre releases  | ✅ Yes (dev branch) |
-| Older releases  | ❌ No             |
+| Version         | Supported                 |
+| --------------- | ------------------------- |
+| Latest          | ✅ Yes                    |
+| Older releases  | ❌ No                     |
 
 We recommend always using the most recent stable release to ensure you have the latest security fixes.
 
