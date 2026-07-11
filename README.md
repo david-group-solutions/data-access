@@ -2,7 +2,8 @@
 
 #### [![Release](https://github.com/david-group-solutions/data-access/actions/workflows/release.yml/badge.svg)](https://github.com/david-group-solutions/data-access/actions/workflows/release.yml) [![Nuget](https://img.shields.io/nuget/v/DavidGroup.Core.DataAccess)](https://www.nuget.org/packages/DavidGroup.Core.DataAccess/)
 
-Foundation library providing data access abstractions for Entity Framework, ADO.NET, and other .NET technologies, along with common patterns and helper extensions.
+Foundation library providing data access abstractions for Entity Framework, ADO.NET, and other .NET technologies, along
+with common patterns and helper extensions.
 
 ---
 
@@ -33,7 +34,7 @@ New samples are added continuously as more features are developed.
 ### Entities
 
 ```csharp
-public sealed class Book : Entity<BookId>, ISqlServerSequentialId<BookId>,
+public sealed class Book : Entity<BookId>, IStronglyTypedSequentialId<BookId>,
     ITimedEntity, ISoftDeletable,
     ISelfManageable<Book, BookCreateModel, BookUpdateModel>
 {
@@ -76,7 +77,7 @@ public sealed class Book : Entity<BookId>, ISqlServerSequentialId<BookId>,
     }
 }
 
-public sealed class Author : Entity<AuthorId>, ISqlServerSequentialId<AuthorId>,
+public sealed class Author : Entity<AuthorId>, IStronglyTypedSequentialId<AuthorId>,
     ISelfManageable<Author, AuthorCreateModel, AuthorUpdateModel>
 {
     private Author() { }
@@ -120,8 +121,13 @@ public class BookStoreDbContext(DbContextOptions<BookStoreDbContext> options) : 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Configures NEWSEQUENTIALID() for all entities implementing ISqlServerSequentialId<TKey>.
-        modelBuilder.ApplySqlServerSequentialIds(this);
+        modelBuilder.ApplyStronglyTypedSequentialIds();    // Sets SequentialStronglyTypedIdValueGenerator<TKey> for Id property.
+
+        // Other options
+        // modelBuilder.ApplySequentialGuids();            // Sets SequentialGuidValueGenerator for Id property.
+        // modelBuilder.ApplySqlServerSequentialIds(this); // Sets NEWSEQUENTIALID() as a default SQL Server value for Id property.
+
+        modelBuilder.ApplyQueryFiltersForSoftDeletedEntities();
     }
 }
 ```
@@ -129,22 +135,11 @@ public class BookStoreDbContext(DbContextOptions<BookStoreDbContext> options) : 
 ### Repository abstraction
 
 ```csharp
-public interface IBooksRepository : IBaseRepository<Book, BookId>, IBaseAggregationRepository<Book>
-{
-    Task<PageData<Book>> GetByAuthorAsync(AuthorId authorId, PageOptions options, CancellationToken cancellationToken = default);
-}
+public interface IBooksRepository
+    : IBaseRepository<Book, BookId>, IBaseAggregationRepository<Book>;
 
 public class BooksRepository(BookStoreDbContext context)
-    : BaseRepository<Book, BookId>(context), IBooksRepository
-{
-    public Task<PageData<Book>> GetByAuthorAsync(AuthorId authorId, PageOptions options, CancellationToken cancellationToken = default)
-    {
-        return GetAllAsync<Book>(
-            options: options,
-            predicate: b => b.AuthorId == authorId, cancellationToken: cancellationToken,
-            orderBy: o => o.OrderByDescending(b => b.PublishedOn));
-    }
-}
+    : BaseRepository<Book, BookId>(context), IBooksRepository;
 ```
 
 ### Service abstraction
@@ -152,7 +147,14 @@ public class BooksRepository(BookStoreDbContext context)
 ```csharp
 public interface IBooksService : IBaseService<Book, BookId, BookCreateModel, BookUpdateModel, BookReadDto>
 {
-    Task<OperationResult<PageData<BookReadDto>>> GetByAuthorAsync(AuthorId authorId, PageOptions options,
+    Task<OperationResult<PageData<BookReadDto>>> GetByAuthorAsync(AuthorId authorId,
+        PageOptions options,
+        string orderBy,
+        CancellationToken cancellationToken = default);
+
+    Task<OperationResult<InfinitePageData<BookReadDto>>> GetByAuthorAsync(AuthorId authorId,
+        InfinitePageOptions options,
+        string orderBy,
         CancellationToken cancellationToken = default);
 }
 
@@ -165,16 +167,58 @@ public class BooksService(IBooksRepository repository, IEfUnitOfWork<BookStoreDb
 {
     protected override Expression<Func<Book, BookReadDto>> ToReadDto => book => book.ToDto();
 
-    public async Task<OperationResult<PageData<BookReadDto>>> GetByAuthorAsync(AuthorId authorId, PageOptions options,
+    public async Task<OperationResult<PageData<BookReadDto>>> GetByAuthorAsync(AuthorId authorId,
+        PageOptions options,
+        string orderBy,
         CancellationToken cancellationToken = default)
     {
+        OperationResult<IReadOnlyList<OrderingSpecification<Book>>> orderingSpecificationsResult =
+            OrderingSpecification<Book>.Parse(orderBy, allowedProperties:
+            [
+                e => e.Id,
+                e => e.Title,
+                e => e.PublishedOn
+            ]);
+
+        if (!orderingSpecificationsResult.Succeeded)
+            return OperationResult<PageData<BookReadDto>>.Failure(orderingSpecificationsResult.Messages[0]);
+
         PageData<BookReadDto> result = await Repository.GetAllAsync(
             options,
-            orderBy: null,
+            predicate => predicate.AuthorId == authorId,
+            orderingSpecifications: orderingSpecificationsResult.Value,
+            include: i => i.Include(e => e.Author),
             selector: ToReadDto,
             cancellationToken: cancellationToken);
 
         return OperationResult<PageData<BookReadDto>>.Success(result);
+    }
+
+    public async Task<OperationResult<InfinitePageData<BookReadDto>>> GetByAuthorAsync(AuthorId authorId,
+        InfinitePageOptions options,
+        string orderBy,
+        CancellationToken cancellationToken = default)
+    {
+        OperationResult<IReadOnlyList<OrderingSpecification<Book>>> orderingSpecificationsResult =
+            OrderingSpecification<Book>.Parse(orderBy, allowedProperties:
+            [
+                e => e.Id,
+                e => e.Title,
+                e => e.PublishedOn
+            ]);
+
+        if (!orderingSpecificationsResult.Succeeded)
+            return OperationResult<InfinitePageData<BookReadDto>>.Failure(orderingSpecificationsResult.Messages[0]);
+
+        InfinitePageData<BookReadDto> result = await Repository.GetAllAsync(
+            options,
+            orderingSpecifications: orderingSpecificationsResult.Value,
+            predicate => predicate.AuthorId == authorId,
+            include: i => i.Include(e => e.Author),
+            selector: ToReadDto,
+            cancellationToken: cancellationToken);
+
+        return OperationResult<InfinitePageData<BookReadDto>>.Success(result);
     }
 }
 

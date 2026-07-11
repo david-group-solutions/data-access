@@ -7,6 +7,10 @@
   <Folder Name="/benchmarks/">
     <Project Path="benchmarks/DavidGroup.Core.DataAccess.Benchmarks/DavidGroup.Core.DataAccess.Benchmarks.csproj" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/DavidGroup.Core.DataAccess.Samples.WebApi.Additional/DavidGroup.Core.DataAccess.Samples.WebApi.Additional.csproj" />
+    <Project Path="samples/DavidGroup.Core.DataAccess.Samples.WebApi/DavidGroup.Core.DataAccess.Samples.WebApi.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />
     <File Path="Directory.Version.props" />

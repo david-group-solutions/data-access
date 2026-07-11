@@ -79,7 +79,7 @@ public static class InfiniteScrollPaginationDynamicCursorBuilderTests
 
             // Act
             DynamicCursor cursor =
-                await InfiniteScrollPaginationDynamicCursorBuilder.BuildNextCursorAsync(ordered, orderBy, 2);
+                await InfiniteScrollPaginationDynamicCursorBuilder.BuildNextCursorAsync(ordered, orderBy, 3);
 
             // Assert
             Assert.Equal([3], cursor.Values);
@@ -123,14 +123,14 @@ public static class InfiniteScrollPaginationDynamicCursorBuilderTests
 
             // Act
             DynamicCursor cursor =
-                await InfiniteScrollPaginationDynamicCursorBuilder.BuildNextCursorAsync(ordered, orderBy, 1);
+                await InfiniteScrollPaginationDynamicCursorBuilder.BuildNextCursorAsync(ordered, orderBy, 2);
 
             // Assert
             Assert.Equal([30, 1], cursor.Values);
         }
 
         [Fact]
-        public async Task BuildNextCursorAsync_PageSizeCoversAllItems_ThrowsInvalidOperationException()
+        public async Task BuildNextCursorAsync_PageSizeExceedsAllItems_ThrowsInvalidOperationException()
         {
             // Arrange
             await using InfiniteScrollTestDbContext context = CreateContext();
@@ -154,7 +154,7 @@ public static class InfiniteScrollPaginationDynamicCursorBuilderTests
 
             // Act & Assert
             await Assert.ThrowsAsync<InvalidOperationException>(()
-                => InfiniteScrollPaginationDynamicCursorBuilder.BuildNextCursorAsync(ordered, orderBy, 2));
+                => InfiniteScrollPaginationDynamicCursorBuilder.BuildNextCursorAsync(ordered, orderBy, 3));
         }
 
         [Fact]

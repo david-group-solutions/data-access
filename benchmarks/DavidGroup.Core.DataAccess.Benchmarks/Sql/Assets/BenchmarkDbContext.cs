@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace DavidGroup.Core.DataAccess.Benchmarks.Assets;
+namespace DavidGroup.Core.DataAccess.Benchmarks.Sql.Assets;
 
 public class BenchmarkDbContext(DbContextOptions<BenchmarkDbContext> options)
     : DbContext(options)

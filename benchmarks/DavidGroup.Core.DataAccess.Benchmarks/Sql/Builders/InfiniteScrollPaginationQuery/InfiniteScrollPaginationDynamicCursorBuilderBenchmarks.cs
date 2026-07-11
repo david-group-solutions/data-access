@@ -5,7 +5,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Order;
 
-using DavidGroup.Core.DataAccess.Benchmarks.Assets;
+using DavidGroup.Core.DataAccess.Benchmarks.Sql.Assets;
 using DavidGroup.Core.DataAccess.Pagination.InfiniteScroll;
 using DavidGroup.Core.DataAccess.Sql.Builders.InfiniteScrollPaginationQuery;
 
@@ -68,7 +68,7 @@ public class InfiniteScrollPaginationDynamicCursorBuilderBenchmarks
 
     [Benchmark(Baseline = true)]
     [BenchmarkCategory("Build next cursor")]
-    public async Task<DynamicCursor> BuildNextCursorSingleColOrder()
+    public async Task<DynamicCursor> InfiniteScrollPaginationDynamicCursorBuilder_BuildNextCursor_SingleColOrder()
     {
         IQueryable<BenchmarkEntity> ordered = _dbContext.BenchmarkEntities.OrderBy(entity => entity.Id);
         List<Expression<Func<BenchmarkEntity, object>>> orderBy = [entity => entity.Id];
@@ -78,7 +78,7 @@ public class InfiniteScrollPaginationDynamicCursorBuilderBenchmarks
 
     [Benchmark]
     [BenchmarkCategory("Build next cursor")]
-    public async Task<DynamicCursor> BuildNextCursorMultiColOrder()
+    public async Task<DynamicCursor> InfiniteScrollPaginationDynamicCursorBuilder_BuildNextCursor_MultiColOrder()
     {
         IQueryable<BenchmarkEntity> ordered = _dbContext.BenchmarkEntities
             .OrderBy(entity => entity.Year)

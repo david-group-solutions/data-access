@@ -249,7 +249,7 @@ public static class BaseRepositoryTests
             InfinitePageOptions options = new()
             {
                 Size = 2,
-                SearchAfter = new DynamicCursor([3])
+                SearchAfterToken = new DynamicCursor([2]).Encode()
             };
             List<OrderingSpecification<RepoTestEntity>> orderingSpecifications =
             [
@@ -259,7 +259,7 @@ public static class BaseRepositoryTests
             // Act
             var result = await repository.GetAllAsync(
                 options,
-                predicate: entity => entity.Age >= 20 && entity.Age <= 25,
+                predicate: entity => entity.Age >= 20,
                 orderingSpecifications: orderingSpecifications,
                 include: query => query.Include(entity => entity.RepoTestEntityAddress),
                 selector: entity => new
@@ -271,14 +271,13 @@ public static class BaseRepositoryTests
 
             // Assert
             Assert.Null(result.NextCursor);
-            Assert.Null(result.NextCursorToken);
 
             Assert.Equal([
-                "Beta"
+                "Alpha"
             ], result.Entities.Select(entity => entity.Name));
 
             Assert.Equal([
-                "London"
+                "New York"
             ], result.Entities.Select(entity => entity.City));
         }
 
