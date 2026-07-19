@@ -9,9 +9,7 @@ namespace DavidGroup.Core.DataAccess.Sql.Entities;
 public abstract class Entity<TKey> : IEntity<TKey>
     where TKey : struct
 {
-    /// <summary>
-    /// Gets or sets the unique identifier for this entity.
-    /// </summary>
+    /// <inheritdoc />
     [Key]
     public TKey Id { get; set; }
 }

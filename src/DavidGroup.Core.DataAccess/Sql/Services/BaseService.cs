@@ -39,14 +39,7 @@ public abstract class BaseService<TDbContext, TRepository, TEntity, TKey, TCreat
     /// </summary>
     protected readonly IEfUnitOfWork<TDbContext> UnitOfWork = unitOfWork;
 
-    /// <summary>
-    /// Creates a new entity from a creation DTO and returns the resulting read DTO.
-    /// </summary>
-    /// <param name="model">The model containing data for the new entity.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// An <see cref="OperationResult{T}"/> containing the created read DTO if successful.
-    /// </returns>
+    /// <inheritdoc />
     public virtual async Task<OperationResult<TReadDto>> CreateAsync(TCreateModel model,
         CancellationToken cancellationToken = default)
     {
@@ -60,15 +53,7 @@ public abstract class BaseService<TDbContext, TRepository, TEntity, TKey, TCreat
         return OperationResult<TReadDto>.Success(readDto);
     }
 
-    /// <summary>
-    /// Updates an existing entity using an update DTO and returns a read DTO.
-    /// </summary>
-    /// <param name="id">The entity identifier.</param>
-    /// <param name="model">The update model containing modified data.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// An <see cref="OperationResult{T}"/> containing the updated read DTO if successful.
-    /// </returns>
+    /// <inheritdoc />
     public virtual async Task<OperationResult<TReadDto>> UpdateAsync(TKey id,
         TUpdateModel model,
         CancellationToken cancellationToken = default)
@@ -91,14 +76,7 @@ public abstract class BaseService<TDbContext, TRepository, TEntity, TKey, TCreat
         return OperationResult<TReadDto>.Success(readDto);
     }
 
-    /// <summary>
-    /// Deletes an entity by its identifier.
-    /// </summary>
-    /// <param name="id">The entity identifier.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// An <see cref="OperationResult"/> representing the outcome of the delete operation.
-    /// </returns>
+    /// <inheritdoc />
     public virtual async Task<OperationResult> DeleteAsync(TKey id, CancellationToken cancellationToken = default)
     {
         TEntity? entity = await Repository.GetByIdAsync([id], cancellationToken);

@@ -12,32 +12,15 @@ namespace DavidGroup.Core.DataAccess.Sql.UnitOfWork.EFCore;
 public class EfUnitOfWork<TContext>(TContext context) : IEfUnitOfWork<TContext>, IDisposable
     where TContext : DbContext
 {
-    /// <summary>
-    /// Gets the <see cref="DbContext"/> instance associated with the current unit of work.
-    /// </summary>
+    /// <inheritdoc />
     public TContext Context { get; } = context;
 
-    /// <summary>
-    /// Gets the currently active database transaction if one exists.
-    /// </summary>
-    /// <remarks>
-    /// This property may return <see langword="null"/> if a transaction has not been started
-    /// using <see cref="CreateTransactionAsync(CancellationToken)"/>.
-    /// </remarks>
+    /// <inheritdoc />
     public IDbContextTransaction? Transaction { get; private set; }
 
     private bool _disposed = false;
 
-    /// <summary>
-    /// Begins a new database transaction asynchronously.
-    /// </summary>
-    /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when there is an active transaction.</exception>
-    /// <remarks>
-    /// This method should be called before performing a series of operations
-    /// that must either all succeed or all fail together.
-    /// </remarks>
+    /// <inheritdoc />
     public async Task CreateTransactionAsync(CancellationToken cancellationToken = default)
     {
         if (_disposed)
@@ -49,17 +32,7 @@ public class EfUnitOfWork<TContext>(TContext context) : IEfUnitOfWork<TContext>,
         Transaction = await Context.Database.BeginTransactionAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Commits the current transaction asynchronously, finalizing all changes made
-    /// during the unit of work.
-    /// </summary>
-    /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when there is no active transaction.</exception>
-    /// <remarks>
-    /// Once committed, the transaction cannot be rolled back.
-    /// Call this method only after all operations within the unit of work have succeeded.
-    /// </remarks>
+    /// <inheritdoc />
     public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
         if (_disposed)
@@ -74,17 +47,7 @@ public class EfUnitOfWork<TContext>(TContext context) : IEfUnitOfWork<TContext>,
         Transaction = null;
     }
 
-    /// <summary>
-    /// Rolls back the current transaction asynchronously, reverting all changes
-    /// made during the unit of work.
-    /// </summary>
-    /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when there is no active transaction.</exception>
-    /// <remarks>
-    /// This method should be invoked when an error occurs or when an operation fails,
-    /// to ensure data consistency by undoing pending changes.
-    /// </remarks>
+    /// <inheritdoc />
     public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
     {
         if (_disposed)
@@ -99,17 +62,7 @@ public class EfUnitOfWork<TContext>(TContext context) : IEfUnitOfWork<TContext>,
         Transaction = null;
     }
 
-    /// <summary>
-    /// Saves all pending changes tracked by the current <see cref="DbContext"/> to the database asynchronously.
-    /// </summary>
-    /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
-    /// <returns>
-    /// A task that represents the asynchronous save operation. The task result contains the number of state entries
-    /// written to the database.
-    /// </returns>
-    /// <remarks>
-    /// This method should be called to persist changes.
-    /// </remarks>
+    /// <inheritdoc />
     public async Task<int> SaveAsync(CancellationToken cancellationToken = default)
     {
         if (_disposed)
