@@ -22,31 +22,13 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
     : IBaseRepository<TEntity, TKey>, IBaseAggregationRepository<TEntity>
     where TEntity : class, IEntity<TKey>
 {
-    /// <summary>
-    /// EF database context instance.
-    /// </summary>
+    /// <inheritdoc />
     public DbContext Context { get; } = context;
 
-    /// <summary>
-    /// EF DbSet of TEntities.
-    /// </summary>
+    /// <inheritdoc />
     public DbSet<TEntity> Entities { get; } = context.Set<TEntity>();
 
-    /// <summary>
-    /// Gets all entities.
-    /// </summary>
-    /// <param name="predicate">A function to test each element for a condition.</param>
-    /// <param name="orderBy">A function to order elements.</param>
-    /// <param name="include">A function to include navigation properties.</param>
-    /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
-    /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
-    /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// A <see cref="List{TResult}" /> that contains results.
-    /// </returns>
-    /// <remarks>This method executes a no-tracking query.</remarks>
-    /// <remarks>This method executes a no-tracking query and does not ignore query filters by default.</remarks>
+    /// <inheritdoc />
     public virtual async Task<List<TResult>> GetAllAsync<TResult>(
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
@@ -68,22 +50,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         return await builder.Query.ToListAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Gets all entities using offset pagination.
-    /// </summary>
-    /// <param name="options">PaginationOptions to paginate result.</param>
-    /// <param name="predicate">A function to test each element for a condition.</param>
-    /// <param name="orderBy">A function to order elements.</param>
-    /// <param name="include">A function to include navigation properties.</param>
-    /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
-    /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
-    /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// An <see cref="PageData{T}" /> that contains results. Additionally, it has metadata fields.
-    /// </returns>
-    /// <remarks>This method executes a no-tracking query.</remarks>
-    /// <remarks>This method executes a no-tracking query and does not ignore query filters by default.</remarks>
+    /// <inheritdoc />
     public virtual async Task<PageData<TResult>> GetAllAsync<TResult>(
         PageOptions options,
         Expression<Func<TEntity, bool>>? predicate = null,
@@ -110,23 +77,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         return new PageData<TResult>(entities, count, options);
     }
 
-    /// <summary>
-    /// Gets all entities using offset pagination. Ordering instructions are passed with a collection
-    /// of <see cref="OrderingSpecification{TEntity}"/>.
-    /// </summary>
-    /// <param name="options">PaginationOptions to paginate result.</param>
-    /// <param name="predicate">A function to test each element for a condition.</param>
-    /// <param name="orderingSpecifications">A collection which represents ordering specifications.</param>
-    /// <param name="include">A function to include navigation properties.</param>
-    /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
-    /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
-    /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// An <see cref="PageData{T}" /> that contains results. Additionally, it has metadata fields.
-    /// </returns>
-    /// <remarks>This method executes a no-tracking query.</remarks>
-    /// <remarks>This method executes a no-tracking query and does not ignore query filters by default.</remarks>
+    /// <inheritdoc />
     public virtual async Task<PageData<TResult>> GetAllAsync<TResult>(
         PageOptions options,
         Expression<Func<TEntity, bool>>? predicate = null,
@@ -153,26 +104,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         return new PageData<TResult>(entities, count, options);
     }
 
-    /// <summary>
-    /// Gets all entities using cursor (infinite scroll) pagination.
-    /// </summary>
-    /// <param name="options">InfinitePaginationOptions to paginate result.</param>
-    /// <param name="predicate">A function to test each element for a condition.</param>
-    /// <param name="orderingSpecifications">A collection which represents ordering specifications.</param>
-    /// <param name="include">A function to include navigation properties.</param>
-    /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
-    /// <param name="nextCursorSelector">
-    /// The selector for next cursor. By default, it will determine it automatically but execute the second SQL query,
-    /// in order to increase performance you must specify it manually.
-    /// </param>
-    /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
-    /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// An <see cref="InfinitePageData{T}" /> that contains results and next cursor which is presented and in array of
-    /// objects and in base64 encoded token. Additionally, it has metadata fields.
-    /// </returns>
-    /// <remarks>This method executes a no-tracking query and does not ignore query filters by default.</remarks>
+    /// <inheritdoc />
     public virtual async Task<InfinitePageData<TResult>> GetAllAsync<TResult>(
         InfinitePageOptions options,
         IReadOnlyList<OrderingSpecification<TEntity>> orderingSpecifications,
@@ -202,18 +134,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
             cancellationToken);
     }
 
-    /// <summary>
-    /// Gets the first or default entity.
-    /// </summary>
-    /// <param name="predicate">A function to test each element for a condition.</param>
-    /// <param name="orderBy">A function to order elements.</param>
-    /// <param name="include">A function to include navigation properties</param>
-    /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
-    /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
-    /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>A <see><cref>{TResult?}</cref></see> element or null nothing found.</returns>
-    /// <remarks>This method executes a no-tracking query and does not ignore query filters by default.</remarks>
+    /// <inheritdoc />
     public virtual async Task<TResult?> FirstOrDefaultAsync<TResult>(
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
@@ -235,25 +156,14 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         return await builder.Query.FirstOrDefaultAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Gets an entity by its primary key.
-    /// </summary>
-    /// <param name="id">An array representing the entity's key values.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>A <see cref="ValueTask{TEntity}"/> representing the asynchronous operation, containing the entity or <c>null</c> if not found.</returns>
+    /// <inheritdoc />
     public virtual async ValueTask<TEntity?> GetByIdAsync(TKey[] id,
         CancellationToken cancellationToken = default)
     {
         return await Entities.FindAsync([..id], cancellationToken: cancellationToken);
     }
 
-    /// <summary>
-    /// Determines whether any entities satisfy the specified condition.
-    /// </summary>
-    /// <param name="predicate">A function to test each element for a condition.</param>
-    /// <param name="ignoreQueryFilters"><c>true</c> to disable query filters; otherwise, <c>false</c>. Defaults to <c>false</c>.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns><c>true</c> if any elements satisfy the condition; otherwise, <c>false</c>.</returns>
+    /// <inheritdoc />
     public virtual async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
@@ -264,32 +174,21 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         return await builder.Query.AnyAsync(predicate, cancellationToken);
     }
 
-    /// <summary>
-    /// Adds a new entity to the context asynchronously.
-    /// </summary>
-    /// <param name="model">The entity to add.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>The <see cref="EntityEntry{TEntity}"/> representing the added entity.</returns>
+    /// <inheritdoc />
     public virtual async ValueTask<EntityEntry<TEntity>> CreateAsync(TEntity model,
         CancellationToken cancellationToken = default)
     {
         return await Entities.AddAsync(model, cancellationToken);
     }
 
-    /// <summary>
-    /// Updates an existing entity in the context.
-    /// </summary>
-    /// <param name="model">The entity to update.</param>
+    /// <inheritdoc />
     public virtual void Update(TEntity model)
     {
         Entities.Attach(model);
         Context.Entry(model).State = EntityState.Modified;
     }
 
-    /// <summary>
-    /// Marks an entity as deleted. If not attached, it will attach it.
-    /// </summary>
-    /// <param name="model">The entity to delete.</param>
+    /// <inheritdoc />
     public virtual void Delete(TEntity model)
     {
         if (Context.Entry(model).State == EntityState.Detached)
@@ -298,16 +197,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         Entities.Remove(model);
     }
 
-    /// <summary>
-    /// Deletes an entity asynchronously by its primary key.
-    /// </summary>
-    /// <param name="id">The identifier of the entity to delete.</param>
-    /// <param name="ignoreQueryFilters"><c>true</c> to disable query filters; otherwise, <c>false</c>. Defaults to <c>false</c>.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// A <see cref="Task{Boolean}"/> representing the asynchronous operation.
-    /// Returns <c>true</c> if the entity was found and deleted successfully; otherwise, <c>false</c>.
-    /// </returns>
+    /// <inheritdoc />
     public virtual async Task<bool> DeleteAsync(TKey id,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
@@ -323,16 +213,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         return true;
     }
 
-    /// <summary>
-    /// Counts the number of entities that satisfy an optional condition.
-    /// </summary>
-    /// <param name="predicate">A function to test each element for a condition. If <c>null</c>, counts all entities.</param>
-    /// <param name="ignoreQueryFilters"><c>true</c> to disable global query filters; otherwise, <c>false</c>. Defaults to <c>false</c>.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// A <see cref="Task{Int32}"/> representing the asynchronous operation.
-    /// The task result contains the number of entities that satisfy the condition.
-    /// </returns>
+    /// <inheritdoc />
     public virtual async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
@@ -345,16 +226,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         return await builder.Query.CountAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Counts the number of entities that satisfy an optional condition, returning a <see cref="long"/> result.
-    /// </summary>
-    /// <param name="predicate">A function to test each element for a condition. If <c>null</c>, counts all entities.</param>
-    /// <param name="ignoreQueryFilters"><c>true</c> to disable global query filters; otherwise, <c>false</c>. Defaults to <c>false</c>.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// A <see cref="Task{Int64}"/> representing the asynchronous operation.
-    /// The task result contains the number of entities that satisfy the condition.
-    /// </returns>
+    /// <inheritdoc />
     public virtual async Task<long> LongCountAsync(Expression<Func<TEntity, bool>>? predicate = null,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
@@ -367,17 +239,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         return await builder.Query.LongCountAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Computes the average value of a sequence of entities based on the specified integer selector.
-    /// </summary>
-    /// <param name="selector">A function that projects each entity to an <see cref="int"/> value for averaging.</param>
-    /// <param name="predicate">A function to test each element for a condition. If <c>null</c>, includes all entities.</param>
-    /// <param name="ignoreQueryFilters"><c>true</c> to disable global query filters; otherwise, <c>false</c>. Defaults to <c>false</c>.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// A <see cref="Task{Double}"/> representing the asynchronous operation.
-    /// The task result contains the computed average value of the selected property.
-    /// </returns>
+    /// <inheritdoc />
     public virtual async Task<double> AverageAsync(
         Expression<Func<TEntity, int>> selector,
         Expression<Func<TEntity, bool>>? predicate = null,
