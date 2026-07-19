@@ -36,13 +36,7 @@ public abstract class BaseReadonlyService<TRepository, TEntity, TKey, TReadDto>(
     /// </summary>
     protected abstract Expression<Func<TEntity, TReadDto>> ToReadDto { get; }
 
-    /// <summary>
-    /// Retrieves all entities as read DTOs.
-    /// </summary>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// An <see cref="OperationResult{T}"/> containing a read-only collection of all entities mapped to read DTOs.
-    /// </returns>
+    /// <inheritdoc />
     public virtual async Task<OperationResult<List<TReadDto>>> GetAllAsync(
         CancellationToken cancellationToken = default)
     {
@@ -54,16 +48,7 @@ public abstract class BaseReadonlyService<TRepository, TEntity, TKey, TReadDto>(
         return OperationResult<List<TReadDto>>.Success(result);
     }
 
-    /// <summary>
-    /// Retrieves all entities using offset pagination and maps them to read DTOs.
-    /// </summary>
-    /// <param name="options">Pagination options for offset-based pagination.</param>
-    /// <param name="orderBy">Optional string specifying the column names and directions to order by. Ex. "Name asc, Date desc, Id desc"</param>
-    /// <param name="allowedToOrderBy">A list of allowed expressions to restrict orderable fields. If <c>null</c>, all fields are allowed to be using in <paramref name="orderBy"/>.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// An <see cref="OperationResult{T}"/> containing a <see cref="PageData{T}"/> with paginated results mapped to read DTOs.
-    /// </returns>
+    /// <inheritdoc />
     public virtual async Task<OperationResult<PageData<TReadDto>>> GetAllAsync(PageOptions options,
         string? orderBy = null,
         IReadOnlyList<Expression<Func<TEntity, object>>>? allowedToOrderBy = null,
@@ -99,17 +84,7 @@ public abstract class BaseReadonlyService<TRepository, TEntity, TKey, TReadDto>(
         return OperationResult<PageData<TReadDto>>.Success(result);
     }
 
-    /// <summary>
-    /// Retrieves all entities using cursor (infinite scroll) pagination and maps them to read DTOs.
-    /// </summary>
-    /// <param name="options">Pagination options for infinite scroll.</param>
-    /// <param name="orderBy">Optional string specifying the column names and directions to order by. Ex. "Name asc, Date desc, Id desc"</param>
-    /// <param name="allowedToOrderBy">A list of allowed expressions to restrict orderable fields. If <c>null</c>, all fields are allowed to be using in <paramref name="orderBy"/>.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// An <see cref="OperationResult{T}"/> containing an <see cref="InfinitePageData{T}"/> with paginated results mapped to read DTOs.
-    /// </returns>
-    /// <remarks>When <paramref name="orderBy"/> is <c>null</c> the primary key used for cursor.</remarks>
+    /// <inheritdoc />
     public virtual async Task<OperationResult<InfinitePageData<TReadDto>>> GetAllAsync(InfinitePageOptions options,
         string? orderBy = null,
         IReadOnlyList<Expression<Func<TEntity, object>>>? allowedToOrderBy = null,
@@ -145,14 +120,7 @@ public abstract class BaseReadonlyService<TRepository, TEntity, TKey, TReadDto>(
         return OperationResult<InfinitePageData<TReadDto>>.Success(result);
     }
 
-    /// <summary>
-    /// Retrieves a single entity by its identifier and maps it to a read DTO.
-    /// </summary>
-    /// <param name="id">The entity identifier.</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
-    /// <returns>
-    /// An <see cref="OperationResult{T}"/> containing the read DTO if found; otherwise, an error result.
-    /// </returns>
+    /// <inheritdoc />
     public virtual async Task<OperationResult<TReadDto>> GetByIdAsync(TKey id,
         CancellationToken cancellationToken = default)
     {
