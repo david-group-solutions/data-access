@@ -1,3 +1,5 @@
+using DavidGroup.Core.DataAccess.Results;
+using DavidGroup.Core.DataAccess.Results.Generic;
 using DavidGroup.Core.DataAccess.Samples.WebApi.Models.Book;
 using DavidGroup.Core.DataAccess.Samples.WebApi.StronglyTypedIds;
 using DavidGroup.Core.DataAccess.Sql.Entities;
@@ -27,22 +29,16 @@ public sealed class Book : Entity<BookId>, IStronglyTypedSequentialId<BookId>,
 
     public bool IsDeleted { get; set; }
 
-    public static Book Create(BookCreateModel model)
+    public static OperationResult<Book> Create(BookCreateModel model)
     {
-        return new Book
-        {
-            Isbn = model.Isbn,
-            Title = model.Title,
-            AuthorId = model.AuthorId,
-            PublishedOn = model.PublishedOn,
-            Price = model.Price,
-            StockCount = model.StockCount
-        };
+        return new Book { Isbn = model.Isbn, Title = model.Title, AuthorId = model.AuthorId, PublishedOn = model.PublishedOn, Price = model.Price, StockCount = model.StockCount };
     }
 
-    public void Update(BookUpdateModel model)
+    public OperationResult Update(BookUpdateModel model)
     {
         Price = model.Price;
         StockCount = model.StockCount;
+
+        return OperationResult.Success();
     }
 }

@@ -40,21 +40,25 @@ public abstract class BaseService<TDbContext, TRepository, TEntity, TKey, TCreat
     protected readonly IEfUnitOfWork<TDbContext> UnitOfWork = unitOfWork;
 
     /// <inheritdoc />
-    public virtual async Task<OperationResult<TReadDto>> CreateAsync(TCreateModel model,
+    public virtual async Task<OperationResult<TReadDto>> CreateAsync(
+        TCreateModel model,
         CancellationToken cancellationToken = default)
     {
-        TEntity entity = TEntity.Create(model);
+        OperationResult<TEntity> entityResult = TEntity.Create(model);
+        if (!entityResult.Succeeded)
+            return OperationResult<TReadDto>.Failure([.. entityResult.Messages]);
 
-        await Repository.CreateAsync(entity, cancellationToken);
+        await Repository.CreateAsync(entityResult.Value, cancellationToken);
         await UnitOfWork.SaveAsync(cancellationToken);
 
-        TReadDto readDto = InMemoryCompiledExpressionsCache.StoreOrRetrieve(ToReadDto).Invoke(entity);
+        TReadDto readDto = InMemoryCompiledExpressionsCache.StoreOrRetrieve(ToReadDto).Invoke(entityResult.Value);
 
         return OperationResult<TReadDto>.Success(readDto);
     }
 
     /// <inheritdoc />
-    public virtual async Task<OperationResult<TReadDto>> UpdateAsync(TKey id,
+    public virtual async Task<OperationResult<TReadDto>> UpdateAsync(
+        TKey id,
         TUpdateModel model,
         CancellationToken cancellationToken = default)
     {
@@ -66,7 +70,9 @@ public abstract class BaseService<TDbContext, TRepository, TEntity, TKey, TCreat
                 new OperationResultMessage(ErrorMessages.NotFound, OperationResultSeverity.Error));
         }
 
-        entity.Update(model);
+        OperationResult updateResult = entity.Update(model);
+        if (!updateResult.Succeeded)
+            return OperationResult<TReadDto>.Failure([.. updateResult.Messages]);
 
         Repository.Update(entity);
         await UnitOfWork.SaveAsync(cancellationToken);

@@ -10,7 +10,7 @@ namespace DavidGroup.Core.DataAccess.Sql.Entities;
 /// <typeparam name="TEntity">The entity type created by this interface.</typeparam>
 /// <typeparam name="TCreateModel">The model type used for creating a new entity instance.</typeparam>
 /// <typeparam name="TUpdateModel">The model type used for updating an existing entity instance.</typeparam>
-public interface ISelfManageableWithResult<TEntity, in TCreateModel, in TUpdateModel>
+public interface ISelfManageable<TEntity, in TCreateModel, in TUpdateModel>
 {
     /// <summary>
     /// Creates a new instance of the entity based on the provided creation model.

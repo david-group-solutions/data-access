@@ -1,3 +1,5 @@
+using DavidGroup.Core.DataAccess.Results;
+using DavidGroup.Core.DataAccess.Results.Generic;
 using DavidGroup.Core.DataAccess.Samples.WebApi.Models.Author;
 using DavidGroup.Core.DataAccess.Samples.WebApi.StronglyTypedIds;
 using DavidGroup.Core.DataAccess.Sql.Entities;
@@ -27,14 +29,16 @@ public sealed class Author : Entity<AuthorId>, IStronglyTypedSequentialId<Author
         private init;
     } = new List<Book>();
 
-    public static Author Create(AuthorCreateModel model)
+    public static OperationResult<Author> Create(AuthorCreateModel model)
     {
         return new Author { Name = model.Name };
     }
 
-    public void Update(AuthorUpdateModel model)
+    public OperationResult Update(AuthorUpdateModel model)
     {
         Name = model.Name;
         Biography = model.Biography;
+
+        return OperationResult.Success();
     }
 }

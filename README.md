@@ -57,7 +57,7 @@ public sealed class Book : Entity<BookId>, IStronglyTypedSequentialId<BookId>,
 
     public bool IsDeleted { get; set; }
 
-    public static Book Create(BookCreateModel model)
+    public static OperationResult<Book> Create(BookCreateModel model)
     {
         return new Book
         {
@@ -70,10 +70,12 @@ public sealed class Book : Entity<BookId>, IStronglyTypedSequentialId<BookId>,
         };
     }
 
-    public void Update(BookUpdateModel model)
+    public OperationResult Update(BookUpdateModel model)
     {
         Price = model.Price;
         StockCount = model.StockCount;
+
+        return OperationResult.Success();
     }
 }
 

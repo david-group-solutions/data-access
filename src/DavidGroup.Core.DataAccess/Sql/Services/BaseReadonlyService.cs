@@ -49,7 +49,8 @@ public abstract class BaseReadonlyService<TRepository, TEntity, TKey, TReadDto>(
     }
 
     /// <inheritdoc />
-    public virtual async Task<OperationResult<PageData<TReadDto>>> GetAllAsync(PageOptions options,
+    public virtual async Task<OperationResult<PageData<TReadDto>>> GetAllAsync(
+        PageOptions options,
         string? orderBy = null,
         IReadOnlyList<Expression<Func<TEntity, object>>>? allowedToOrderBy = null,
         CancellationToken cancellationToken = default)
@@ -85,7 +86,8 @@ public abstract class BaseReadonlyService<TRepository, TEntity, TKey, TReadDto>(
     }
 
     /// <inheritdoc />
-    public virtual async Task<OperationResult<InfinitePageData<TReadDto>>> GetAllAsync(InfinitePageOptions options,
+    public virtual async Task<OperationResult<InfinitePageData<TReadDto>>> GetAllAsync(
+        InfinitePageOptions options,
         string? orderBy = null,
         IReadOnlyList<Expression<Func<TEntity, object>>>? allowedToOrderBy = null,
         CancellationToken cancellationToken = default)
@@ -121,7 +123,8 @@ public abstract class BaseReadonlyService<TRepository, TEntity, TKey, TReadDto>(
     }
 
     /// <inheritdoc />
-    public virtual async Task<OperationResult<TReadDto>> GetByIdAsync(TKey id,
+    public virtual async Task<OperationResult<TReadDto>> GetByIdAsync(
+        TKey id,
         CancellationToken cancellationToken = default)
     {
         TEntity? entity = await Repository.GetByIdAsync([id], cancellationToken);
