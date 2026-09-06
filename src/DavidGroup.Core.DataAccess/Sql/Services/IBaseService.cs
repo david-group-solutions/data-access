@@ -12,7 +12,8 @@ namespace DavidGroup.Core.DataAccess.Sql.Services;
 /// <typeparam name="TCreateModel">The model type used for creating an entity.</typeparam>
 /// <typeparam name="TUpdateModel">The model type used for updating an entity.</typeparam>
 /// <typeparam name="TReadDto">The DTO type returned when reading an entity.</typeparam>
-public interface IBaseService<TEntity, in TKey, in TCreateModel, in TUpdateModel, TReadDto> : IBaseReadonlyService<TEntity, TKey, TReadDto>
+public interface IBaseService<TEntity, in TKey, in TCreateModel, in TUpdateModel, TReadDto>
+    : IBaseReadonlyService<TEntity, TKey, TReadDto>
     where TEntity : class, IEntity<TKey>
     where TKey : new()
     where TCreateModel : class

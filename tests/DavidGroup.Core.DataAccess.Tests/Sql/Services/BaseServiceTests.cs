@@ -17,9 +17,9 @@ public static class BaseServiceTests
     // Helpers
     // -------------------------------------------------------------------------
 
-    private record BaseSvcTestCreateModel(string Name);
+    private record BaseSvcTestCreateModel(string Name, bool IsInvalid);
 
-    private record BaseSvcTestUpdateModel(string Name);
+    private record BaseSvcTestUpdateModel(string Name, bool IsInvalid);
 
     private class BaseSvcTestEntity : Entity<int>,
         ISelfManageable<BaseSvcTestEntity, BaseSvcTestCreateModel, BaseSvcTestUpdateModel>
@@ -28,9 +28,25 @@ public static class BaseServiceTests
 
         public string Name { get; private set; } = string.Empty;
 
-        public static BaseSvcTestEntity Create(BaseSvcTestCreateModel model) => new() { Name = model.Name };
+        public static OperationResult<BaseSvcTestEntity> Create(BaseSvcTestCreateModel model)
+        {
+            if (model.IsInvalid)
+                return OperationResult<BaseSvcTestEntity>.Failure(
+                    new OperationResultMessage("Invalid model", OperationResultSeverity.Error));
 
-        public void Update(BaseSvcTestUpdateModel model) => Name = model.Name;
+            return new BaseSvcTestEntity { Name = model.Name };
+        }
+
+        public OperationResult Update(BaseSvcTestUpdateModel model)
+        {
+            if (model.IsInvalid)
+                return OperationResult.Failure(
+                    new OperationResultMessage("Invalid model", OperationResultSeverity.Error));
+
+            Name = model.Name;
+
+            return OperationResult.Success();
+        }
     }
 
     private class BaseSvcTestReadDto
@@ -60,11 +76,7 @@ public static class BaseServiceTests
             BaseSvcTestReadDto>(repository, unitOfWork)
     {
         protected override Expression<Func<BaseSvcTestEntity, BaseSvcTestReadDto>> ToReadDto =>
-            entity => new BaseSvcTestReadDto
-            {
-                Id = entity.Id,
-                Name = entity.Name
-            };
+            entity => new BaseSvcTestReadDto { Id = entity.Id, Name = entity.Name };
     }
 
     private static BaseSvcTestDbContext CreateContext(params BaseSvcTestEntity[] entities)
@@ -85,10 +97,10 @@ public static class BaseServiceTests
     {
         return
         [
-            BaseSvcTestEntity.Create(new BaseSvcTestCreateModel("Alpha")),
-            BaseSvcTestEntity.Create(new BaseSvcTestCreateModel("Beta")),
-            BaseSvcTestEntity.Create(new BaseSvcTestCreateModel("Gamma")),
-            BaseSvcTestEntity.Create(new BaseSvcTestCreateModel("Delta"))
+            BaseSvcTestEntity.Create(new BaseSvcTestCreateModel("Alpha", IsInvalid: false)),
+            BaseSvcTestEntity.Create(new BaseSvcTestCreateModel("Beta", IsInvalid: false)),
+            BaseSvcTestEntity.Create(new BaseSvcTestCreateModel("Gamma", IsInvalid: false)),
+            BaseSvcTestEntity.Create(new BaseSvcTestCreateModel("Delta", IsInvalid: false))
         ];
     }
 
@@ -107,7 +119,7 @@ public static class BaseServiceTests
             IEfUnitOfWork<BaseSvcTestDbContext> unitOfWork = new EfUnitOfWork<BaseSvcTestDbContext>(context);
             BaseSvcTestService service = new(repository, unitOfWork);
 
-            BaseSvcTestCreateModel model = new("Alpha");
+            BaseSvcTestCreateModel model = new("Alpha", IsInvalid: false);
 
             // Act
             OperationResult<BaseSvcTestReadDto> result = await service.CreateAsync(model);
@@ -116,6 +128,26 @@ public static class BaseServiceTests
             Assert.True(result.Succeeded);
             Assert.Equal("Alpha", result.Value.Name);
             Assert.Equal(1, await context.Entities.CountAsync());
+        }
+
+        [Fact]
+        public async Task GivenInvalidModel_Fails()
+        {
+            // Arrange
+            await using BaseSvcTestDbContext context = CreateContext();
+            BaseSvcTestRepository repository = new(context);
+            IEfUnitOfWork<BaseSvcTestDbContext> unitOfWork = new EfUnitOfWork<BaseSvcTestDbContext>(context);
+            BaseSvcTestService service = new(repository, unitOfWork);
+
+            BaseSvcTestCreateModel model = new("Alpha", IsInvalid: true);
+
+            // Act
+            OperationResult<BaseSvcTestReadDto> result = await service.CreateAsync(model);
+
+            // Assert
+            Assert.False(result.Succeeded);
+            Assert.Equal("Invalid model", result.Messages[0].Message);
+            Assert.Equal(OperationResultSeverity.Error, result.Messages[0].Severity);
         }
     }
 
@@ -134,7 +166,7 @@ public static class BaseServiceTests
             IEfUnitOfWork<BaseSvcTestDbContext> unitOfWork = new EfUnitOfWork<BaseSvcTestDbContext>(context);
             BaseSvcTestService service = new(repository, unitOfWork);
 
-            BaseSvcTestUpdateModel model = new("Updated Beta");
+            BaseSvcTestUpdateModel model = new("Updated Beta", IsInvalid: false);
 
             // Act
             OperationResult<BaseSvcTestReadDto> result = await service.UpdateAsync(2, model);
@@ -157,7 +189,7 @@ public static class BaseServiceTests
             IEfUnitOfWork<BaseSvcTestDbContext> unitOfWork = new EfUnitOfWork<BaseSvcTestDbContext>(context);
             BaseSvcTestService service = new(repository, unitOfWork);
 
-            BaseSvcTestUpdateModel model = new("Updated Beta");
+            BaseSvcTestUpdateModel model = new("Updated Beta", IsInvalid: false);
 
             // Act
             OperationResult<BaseSvcTestReadDto> result = await service.UpdateAsync(99, model);
@@ -165,6 +197,25 @@ public static class BaseServiceTests
             // Assert
             Assert.False(result.Succeeded);
             Assert.Equal(ErrorMessages.NotFound, result.Messages[0].Message);
+            Assert.Equal(OperationResultSeverity.Error, result.Messages[0].Severity);
+        }
+
+        [Fact]
+        public async Task GivenInvalidModel_Fails()
+        {
+            await using BaseSvcTestDbContext context = CreateContext(CreateFourEntities());
+            BaseSvcTestRepository repository = new(context);
+            IEfUnitOfWork<BaseSvcTestDbContext> unitOfWork = new EfUnitOfWork<BaseSvcTestDbContext>(context);
+            BaseSvcTestService service = new(repository, unitOfWork);
+
+            BaseSvcTestUpdateModel model = new("Updated Beta", IsInvalid: true);
+
+            // Act
+            OperationResult<BaseSvcTestReadDto> result = await service.UpdateAsync(2, model);
+
+            // Assert
+            Assert.False(result.Succeeded);
+            Assert.Equal("Invalid model", result.Messages[0].Message);
             Assert.Equal(OperationResultSeverity.Error, result.Messages[0].Severity);
         }
     }

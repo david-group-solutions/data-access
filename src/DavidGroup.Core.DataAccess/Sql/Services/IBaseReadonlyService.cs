@@ -37,7 +37,8 @@ public interface IBaseReadonlyService<TEntity, in TKey, TReadDto>
     /// <returns>
     /// An <see cref="OperationResult{T}"/> containing a <see cref="PageData{T}"/> with paginated results mapped to read DTOs.
     /// </returns>
-    Task<OperationResult<PageData<TReadDto>>> GetAllAsync(PageOptions options,
+    Task<OperationResult<PageData<TReadDto>>> GetAllAsync(
+        PageOptions options,
         string? orderBy = null,
         IReadOnlyList<Expression<Func<TEntity, object>>>? allowedToOrderBy = null,
         CancellationToken cancellationToken = default);
@@ -53,7 +54,8 @@ public interface IBaseReadonlyService<TEntity, in TKey, TReadDto>
     /// An <see cref="OperationResult{T}"/> containing an <see cref="InfinitePageData{T}"/> with paginated results mapped to read DTOs.
     /// </returns>
     /// <remarks>When <paramref name="orderBy"/> is <c>null</c> the primary key used for cursor.</remarks>
-    Task<OperationResult<InfinitePageData<TReadDto>>> GetAllAsync(InfinitePageOptions options,
+    Task<OperationResult<InfinitePageData<TReadDto>>> GetAllAsync(
+        InfinitePageOptions options,
         string? orderBy = null,
         IReadOnlyList<Expression<Func<TEntity, object>>>? allowedToOrderBy = null,
         CancellationToken cancellationToken = default);
