@@ -71,6 +71,23 @@ public class BasicQueryBuilder<TEntity>(IQueryable<TEntity> query)
     }
 
     /// <summary>
+    /// Configures whether related collections are loaded using split queries.
+    /// </summary>
+    /// <param name="split">
+    /// <c>True</c> to execute separate SQL queries for included collections;
+    /// otherwise, <c>false</c> to execute a single query.
+    /// </param>
+    /// <returns>The current <see cref="BasicQueryBuilder{TEntity}"/> instance for chaining.</returns>
+    public BasicQueryBuilder<TEntity> WithQuerySplitting(bool split)
+    {
+        Query = split
+            ? Query.AsSplitQuery()
+            : Query.AsSingleQuery();
+
+        return this;
+    }
+
+    /// <summary>
     /// Applies a filter predicate to the query.
     /// </summary>
     /// <param name="predicate">A LINQ expression used to filter results.</param>

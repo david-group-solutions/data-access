@@ -38,6 +38,10 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
+    /// <param name="asSplitQuery">
+    /// <c>True</c> to load related collections using separate SQL queries; otherwise,
+    /// <c>false</c> to load them using a single query. Default to <c>false</c>.
+    /// </param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
     /// <returns>
     /// A <see cref="List{TResult}" /> that contains results.
@@ -51,6 +55,7 @@ public interface IBaseRepository<TEntity, in TKey>
         Expression<Func<TEntity, TResult>>? selector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
+        bool asSplitQuery = false,
         CancellationToken cancellationToken = default)
         where TResult : class;
 
@@ -64,6 +69,10 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
+    /// <param name="asSplitQuery">
+    /// <c>True</c> to load related collections using separate SQL queries; otherwise,
+    /// <c>false</c> to load them using a single query. Default to <c>false</c>.
+    /// </param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
     /// <returns>
     /// An <see cref="PageData{T}" /> that contains results. Additionally, it has metadata fields.
@@ -78,6 +87,7 @@ public interface IBaseRepository<TEntity, in TKey>
         Expression<Func<TEntity, TResult>>? selector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
+        bool asSplitQuery = false,
         CancellationToken cancellationToken = default)
         where TResult : class;
 
@@ -92,6 +102,10 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
+    /// <param name="asSplitQuery">
+    /// <c>True</c> to load related collections using separate SQL queries; otherwise,
+    /// <c>false</c> to load them using a single query. Default to <c>false</c>.
+    /// </param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
     /// <returns>
     /// An <see cref="PageData{T}" /> that contains results. Additionally, it has metadata fields.
@@ -106,6 +120,7 @@ public interface IBaseRepository<TEntity, in TKey>
         Expression<Func<TEntity, TResult>>? selector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
+        bool asSplitQuery = false,
         CancellationToken cancellationToken = default)
         where TResult : class;
 
@@ -120,6 +135,10 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <param name="nextCursorSelector">The selector for next cursor. By default, it will determine it automatically, but to increase performance you must specify it manually.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
+    /// <param name="asSplitQuery">
+    /// <c>True</c> to load related collections using separate SQL queries; otherwise,
+    /// <c>false</c> to load them using a single query. Default to <c>false</c>.
+    /// </param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
     /// <returns>
     /// An <see cref="InfinitePageData{T}" /> that contains results and next cursor which is presented and in array of
@@ -135,6 +154,7 @@ public interface IBaseRepository<TEntity, in TKey>
         Func<TResult, object[]>? nextCursorSelector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
+        bool asSplitQuery = false,
         CancellationToken cancellationToken = default)
         where TResult : class;
 
@@ -147,6 +167,10 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <param name="selector">The selector for projection. Defaults to <c>e => e</c>.</param>
     /// <param name="disableTracking"><c>True</c> to disable changing tracking; otherwise, <c>false</c>. Default to <c>true</c>.</param>
     /// <param name="ignoreQueryFilters"><c>True</c> to disable query filters; otherwise, <c>false</c>. Default to <c>false</c>.</param>
+    /// <param name="asSplitQuery">
+    /// <c>True</c> to load related collections using separate SQL queries; otherwise,
+    /// <c>false</c> to load them using a single query. Default to <c>false</c>.
+    /// </param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
     /// <returns>A <see><cref>{TResult?}</cref></see> element or null nothing found.</returns>
     /// <remarks>This method executes a no-tracking query and does not ignore query filters by default.</remarks>
@@ -157,6 +181,7 @@ public interface IBaseRepository<TEntity, in TKey>
         Expression<Func<TEntity, TResult>>? selector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
+        bool asSplitQuery = false,
         CancellationToken cancellationToken = default)
         where TResult : class;
 
@@ -166,7 +191,8 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <param name="id">An array representing the entity's key values.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
     /// <returns>A <see cref="ValueTask{TEntity}"/> representing the asynchronous operation, containing the entity or <c>null</c> if not found.</returns>
-    ValueTask<TEntity?> GetByIdAsync(TKey[] id,
+    ValueTask<TEntity?> GetByIdAsync(
+        TKey[] id,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -176,7 +202,8 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <param name="ignoreQueryFilters"><c>true</c> to disable query filters; otherwise, <c>false</c>. Defaults to <c>false</c>.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
     /// <returns><c>true</c> if any elements satisfy the condition; otherwise, <c>false</c>.</returns>
-    Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate,
+    Task<bool> AnyAsync(
+        Expression<Func<TEntity, bool>> predicate,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default);
 
@@ -186,7 +213,8 @@ public interface IBaseRepository<TEntity, in TKey>
     /// <param name="model">The entity to add.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
     /// <returns>The <see cref="EntityEntry{TEntity}"/> representing the added entity.</returns>
-    ValueTask<EntityEntry<TEntity>> CreateAsync(TEntity model,
+    ValueTask<EntityEntry<TEntity>> CreateAsync(
+        TEntity model,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -211,7 +239,8 @@ public interface IBaseRepository<TEntity, in TKey>
     /// A <see cref="Task{Boolean}"/> representing the asynchronous operation.
     /// Returns <c>true</c> if the entity was found and deleted successfully; otherwise, <c>false</c>.
     /// </returns>
-    Task<bool> DeleteAsync(TKey id,
+    Task<bool> DeleteAsync(
+        TKey id,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default);
 }

@@ -19,7 +19,8 @@ public interface IBaseAggregationRepository<TEntity>
     /// A <see cref="Task{Int32}"/> representing the asynchronous operation.
     /// The task result contains the number of entities that satisfy the condition.
     /// </returns>
-    Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null,
+    Task<int> CountAsync(
+        Expression<Func<TEntity, bool>>? predicate = null,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default);
 
@@ -33,7 +34,8 @@ public interface IBaseAggregationRepository<TEntity>
     /// A <see cref="Task{Int64}"/> representing the asynchronous operation.
     /// The task result contains the number of entities that satisfy the condition.
     /// </returns>
-    Task<long> LongCountAsync(Expression<Func<TEntity, bool>>? predicate = null,
+    Task<long> LongCountAsync(
+        Expression<Func<TEntity, bool>>? predicate = null,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default);
 
