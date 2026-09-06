@@ -36,6 +36,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         Expression<Func<TEntity, TResult>>? selector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
+        bool asSplitQuery = false,
         CancellationToken cancellationToken = default)
         where TResult : class
     {
@@ -43,6 +44,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
             .WithTracking(!disableTracking)
             .WithIgnoreQueryFilters(ignoreQueryFilters)
             .WithInclude(include)
+            .WithQuerySplitting(asSplitQuery)
             .WithPredicate(predicate)
             .WithOrdering(orderBy)
             .WithProjection(selector);
@@ -59,6 +61,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         Expression<Func<TEntity, TResult>>? selector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
+        bool asSplitQuery = false,
         CancellationToken cancellationToken = default)
         where TResult : class
     {
@@ -66,6 +69,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
             .WithTracking(!disableTracking)
             .WithIgnoreQueryFilters(ignoreQueryFilters)
             .WithInclude(include)
+            .WithQuerySplitting(asSplitQuery)
             .WithPredicate(predicate)
             .WithOrdering(orderBy)
             .WithProjection(selector);
@@ -86,6 +90,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         Expression<Func<TEntity, TResult>>? selector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
+        bool asSplitQuery = false,
         CancellationToken cancellationToken = default)
         where TResult : class
     {
@@ -93,6 +98,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
             .WithTracking(!disableTracking)
             .WithIgnoreQueryFilters(ignoreQueryFilters)
             .WithInclude(include)
+            .WithQuerySplitting(asSplitQuery)
             .WithPredicate(predicate)
             .WithOrdering(orderingSpecifications)
             .WithProjection(selector);
@@ -114,6 +120,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         Func<TResult, object[]>? nextCursorSelector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
+        bool asSplitQuery = false,
         CancellationToken cancellationToken = default)
         where TResult : class
     {
@@ -124,6 +131,7 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
             new InfiniteScrollPaginationQueryBuilder<TEntity>(Entities)
                 .WithTracking(!disableTracking)
                 .WithIgnoreQueryFilters(ignoreQueryFilters)
+                .WithQuerySplitting(asSplitQuery)
                 .WithInclude(include)
                 .WithPredicate(predicate) as InfiniteScrollPaginationQueryBuilder<TEntity>;
 
@@ -142,12 +150,14 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
         Expression<Func<TEntity, TResult>>? selector = null,
         bool disableTracking = true,
         bool ignoreQueryFilters = false,
+        bool asSplitQuery = false,
         CancellationToken cancellationToken = default)
         where TResult : class
     {
         BasicQueryBuilder<TResult> builder = new BasicQueryBuilder<TEntity>(Entities)
             .WithTracking(!disableTracking)
             .WithIgnoreQueryFilters(ignoreQueryFilters)
+            .WithQuerySplitting(asSplitQuery)
             .WithInclude(include)
             .WithPredicate(predicate)
             .WithOrdering(orderBy)
@@ -157,14 +167,16 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
     }
 
     /// <inheritdoc />
-    public virtual async ValueTask<TEntity?> GetByIdAsync(TKey[] id,
+    public virtual async ValueTask<TEntity?> GetByIdAsync(
+        TKey[] id,
         CancellationToken cancellationToken = default)
     {
-        return await Entities.FindAsync([..id], cancellationToken: cancellationToken);
+        return await Entities.FindAsync([.. id], cancellationToken: cancellationToken);
     }
 
     /// <inheritdoc />
-    public virtual async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate,
+    public virtual async Task<bool> AnyAsync(
+        Expression<Func<TEntity, bool>> predicate,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
     {
@@ -175,7 +187,8 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
     }
 
     /// <inheritdoc />
-    public virtual async ValueTask<EntityEntry<TEntity>> CreateAsync(TEntity model,
+    public virtual async ValueTask<EntityEntry<TEntity>> CreateAsync(
+        TEntity model,
         CancellationToken cancellationToken = default)
     {
         return await Entities.AddAsync(model, cancellationToken);
@@ -198,7 +211,8 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
     }
 
     /// <inheritdoc />
-    public virtual async Task<bool> DeleteAsync(TKey id,
+    public virtual async Task<bool> DeleteAsync(
+        TKey id,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
     {
@@ -214,7 +228,8 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
     }
 
     /// <inheritdoc />
-    public virtual async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null,
+    public virtual async Task<int> CountAsync(
+        Expression<Func<TEntity, bool>>? predicate = null,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
     {
@@ -227,7 +242,8 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
     }
 
     /// <inheritdoc />
-    public virtual async Task<long> LongCountAsync(Expression<Func<TEntity, bool>>? predicate = null,
+    public virtual async Task<long> LongCountAsync(
+        Expression<Func<TEntity, bool>>? predicate = null,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
     {
