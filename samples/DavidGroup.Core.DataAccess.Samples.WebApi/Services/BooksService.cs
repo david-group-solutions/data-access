@@ -41,7 +41,8 @@ public class BooksService(IBooksRepository repository, IEfUnitOfWork<BookStoreDb
         return OperationResult<List<BookReadDto>>.Success(result);
     }
 
-    public override async Task<OperationResult<PageData<BookReadDto>>> GetAllAsync(PageOptions options,
+    public override async Task<OperationResult<PageData<BookReadDto>>> GetAllAsync(
+        PageOptions options,
         string? orderBy = null,
         IReadOnlyList<Expression<Func<Book, object>>>? allowedToOrderBy = null,
         CancellationToken cancellationToken = default)
@@ -78,7 +79,8 @@ public class BooksService(IBooksRepository repository, IEfUnitOfWork<BookStoreDb
         return OperationResult<PageData<BookReadDto>>.Success(result);
     }
 
-    public override async Task<OperationResult<InfinitePageData<BookReadDto>>> GetAllAsync(InfinitePageOptions options,
+    public override async Task<OperationResult<InfinitePageData<BookReadDto>>> GetAllAsync(
+        InfinitePageOptions options,
         string? orderBy = null,
         IReadOnlyList<Expression<Func<Book, object>>>? allowedToOrderBy = null,
         CancellationToken cancellationToken = default)
@@ -115,28 +117,28 @@ public class BooksService(IBooksRepository repository, IEfUnitOfWork<BookStoreDb
         return OperationResult<InfinitePageData<BookReadDto>>.Success(result);
     }
 
-    public override async Task<OperationResult<BookReadDto>> GetByIdAsync(BookId id,
+    public override async Task<OperationResult<BookReadDto>> GetByIdAsync(
+        BookId id,
         CancellationToken cancellationToken = default)
     {
-        Book? entity = await Repository.FirstOrDefaultAsync(
+        BookReadDto? book = await Repository.FirstOrDefaultAsync(
             predicate: e => e.Id == id,
             include: i => i.Include(e => e.Author),
-            selector: e => e,
+            selector: ToReadDto,
             cancellationToken: cancellationToken
         );
 
-        if (entity is null)
+        if (book is null)
         {
             return OperationResult<BookReadDto>.Failure(
                 new OperationResultMessage(ErrorMessages.NotFound, OperationResultSeverity.Error));
         }
 
-        BookReadDto readDto = InMemoryCompiledExpressionsCache.StoreOrRetrieve(ToReadDto).Invoke(entity);
-
-        return OperationResult<BookReadDto>.Success(readDto);
+        return OperationResult<BookReadDto>.Success(book);
     }
 
-    public override async Task<OperationResult<BookReadDto>> CreateAsync(BookCreateModel model,
+    public override async Task<OperationResult<BookReadDto>> CreateAsync(
+        BookCreateModel model,
         CancellationToken cancellationToken = default)
     {
         Book entity = Book.Create(model);
@@ -151,7 +153,8 @@ public class BooksService(IBooksRepository repository, IEfUnitOfWork<BookStoreDb
         return OperationResult<BookReadDto>.Success(readDto);
     }
 
-    public override async Task<OperationResult<BookReadDto>> UpdateAsync(BookId id, BookUpdateModel model,
+    public override async Task<OperationResult<BookReadDto>> UpdateAsync(
+        BookId id, BookUpdateModel model,
         CancellationToken cancellationToken = default)
     {
         Book? entity = await Repository.FirstOrDefaultAsync(
@@ -177,7 +180,8 @@ public class BooksService(IBooksRepository repository, IEfUnitOfWork<BookStoreDb
         return OperationResult<BookReadDto>.Success(readDto);
     }
 
-    public async Task<OperationResult<PageData<BookReadDto>>> GetByAuthorAsync(AuthorId authorId,
+    public async Task<OperationResult<PageData<BookReadDto>>> GetByAuthorAsync(
+        AuthorId authorId,
         PageOptions options,
         string orderBy,
         CancellationToken cancellationToken = default)
@@ -204,7 +208,8 @@ public class BooksService(IBooksRepository repository, IEfUnitOfWork<BookStoreDb
         return OperationResult<PageData<BookReadDto>>.Success(result);
     }
 
-    public async Task<OperationResult<InfinitePageData<BookReadDto>>> GetByAuthorAsync(AuthorId authorId,
+    public async Task<OperationResult<InfinitePageData<BookReadDto>>> GetByAuthorAsync(
+        AuthorId authorId,
         InfinitePageOptions options,
         string orderBy,
         CancellationToken cancellationToken = default)

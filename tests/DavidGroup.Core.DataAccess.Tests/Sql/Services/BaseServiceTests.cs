@@ -7,6 +7,7 @@ using DavidGroup.Core.DataAccess.Sql.Repositories;
 using DavidGroup.Core.DataAccess.Sql.Services;
 using DavidGroup.Core.DataAccess.Sql.UnitOfWork.EFCore;
 
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace DavidGroup.Core.DataAccess.Tests.Sql.Services;
@@ -81,11 +82,16 @@ public static class BaseServiceTests
 
     private static BaseSvcTestDbContext CreateContext(params BaseSvcTestEntity[] entities)
     {
+        SqliteConnection connection = new("DataSource=:memory:");
+        connection.Open();
+
         DbContextOptions<BaseSvcTestDbContext> options = new DbContextOptionsBuilder<BaseSvcTestDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseSqlite(connection)
             .Options;
 
         BaseSvcTestDbContext context = new(options);
+
+        context.Database.EnsureCreated();
 
         context.Entities.AddRange(entities);
         context.SaveChanges();
