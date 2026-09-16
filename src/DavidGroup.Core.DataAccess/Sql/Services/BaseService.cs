@@ -85,16 +85,13 @@ public abstract class BaseService<TDbContext, TRepository, TEntity, TKey, TCreat
     /// <inheritdoc />
     public virtual async Task<OperationResult> DeleteAsync(TKey id, CancellationToken cancellationToken = default)
     {
-        TEntity? entity = await Repository.GetByIdAsync([id], cancellationToken);
+        int deletedEntitiesCount = await Repository.DeleteAsync(e => e.Id!.Equals(id), cancellationToken: cancellationToken);
 
-        if (entity is null)
+        if (deletedEntitiesCount == 0)
         {
             return OperationResult<TReadDto>.Failure(
                 new OperationResultMessage(ErrorMessages.NotFound, OperationResultSeverity.Error));
         }
-
-        await Repository.DeleteAsync(entity.Id, cancellationToken: cancellationToken);
-        await UnitOfWork.SaveAsync(cancellationToken);
 
         return OperationResult.Success();
     }

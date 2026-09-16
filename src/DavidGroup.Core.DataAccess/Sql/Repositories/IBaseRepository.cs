@@ -230,17 +230,16 @@ public interface IBaseRepository<TEntity, in TKey>
     void Delete(TEntity model);
 
     /// <summary>
-    /// Deletes an entity asynchronously by its primary key.
+    /// Deletes all entities that match the specified predicate.
     /// </summary>
-    /// <param name="id">The identifier of the entity to delete.</param>
+    /// <param name="predicate">A function to test each element for a condition.</param>
     /// <param name="ignoreQueryFilters"><c>true</c> to disable query filters; otherwise, <c>false</c>. Defaults to <c>false</c>.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/> for task cancellation.</param>
     /// <returns>
-    /// A <see cref="Task{Boolean}"/> representing the asynchronous operation.
-    /// Returns <c>true</c> if the entity was found and deleted successfully; otherwise, <c>false</c>.
+    /// The number of entities deleted.
     /// </returns>
-    Task<bool> DeleteAsync(
-        TKey id,
+    Task<int> DeleteAsync(
+        Expression<Func<TEntity, bool>>? predicate = null,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default);
 }
