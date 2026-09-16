@@ -211,20 +211,17 @@ public abstract class BaseRepository<TEntity, TKey>(DbContext context)
     }
 
     /// <inheritdoc />
-    public virtual async Task<bool> DeleteAsync(
-        TKey id,
+    public virtual async Task<int> DeleteAsync(
+        Expression<Func<TEntity, bool>>? predicate = null,
         bool ignoreQueryFilters = false,
         CancellationToken cancellationToken = default)
     {
-        TEntity? entityToDelete = await Entities
-            .IgnoreQueryFilters()
-            .SingleOrDefaultAsync(e => id!.Equals(e.Id), cancellationToken);
+        BasicQueryBuilder<TEntity> builder = new BasicQueryBuilder<TEntity>(Entities)
+            .WithTracking(false)
+            .WithIgnoreQueryFilters(ignoreQueryFilters)
+            .WithPredicate(predicate);
 
-        if (entityToDelete is null) return false;
-
-        Delete(entityToDelete);
-
-        return true;
+        return await builder.Query.ExecuteDeleteAsync(cancellationToken);
     }
 
     /// <inheritdoc />

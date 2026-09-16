@@ -4,6 +4,7 @@ using DavidGroup.Core.DataAccess.Sql.Builders;
 using DavidGroup.Core.DataAccess.Sql.Entities;
 using DavidGroup.Core.DataAccess.Sql.Repositories;
 
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -30,17 +31,23 @@ public static class BaseRepositoryTests
     private class RepoTestDbContext(DbContextOptions<RepoTestDbContext> options) : DbContext(options)
     {
         public DbSet<RepoTestEntity> Entities => Set<RepoTestEntity>();
+        public DbSet<RepoTestEntityAddress> Addresses => Set<RepoTestEntityAddress>();
     }
 
     private sealed class RepoTestRepository(DbContext context) : BaseRepository<RepoTestEntity, int>(context);
 
     private static RepoTestDbContext CreateContext(params RepoTestEntity[] entities)
     {
+        SqliteConnection connection = new("DataSource=:memory:");
+        connection.Open();
+
         DbContextOptions<RepoTestDbContext> options = new DbContextOptionsBuilder<RepoTestDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseSqlite(connection)
             .Options;
 
         RepoTestDbContext context = new(options);
+
+        context.Database.EnsureCreated();
 
         context.Entities.AddRange(entities);
         context.SaveChanges();
@@ -52,37 +59,13 @@ public static class BaseRepositoryTests
     {
         return
         [
-            new RepoTestEntity
-            {
-                Id = 1,
-                Name = "Alpha",
-                Age = 30,
-                RepoTestEntityAddress = new RepoTestEntityAddress { City = "New York" }
-            },
+            new RepoTestEntity { Id = 1, Name = "Alpha", Age = 30, RepoTestEntityAddress = new RepoTestEntityAddress { City = "New York" } },
 
-            new RepoTestEntity
-            {
-                Id = 2,
-                Name = "Beta",
-                Age = 20,
-                RepoTestEntityAddress = new RepoTestEntityAddress { City = "London" }
-            },
+            new RepoTestEntity { Id = 2, Name = "Beta", Age = 20, RepoTestEntityAddress = new RepoTestEntityAddress { City = "London" } },
 
-            new RepoTestEntity
-            {
-                Id = 3,
-                Name = "Gamma",
-                Age = 25,
-                RepoTestEntityAddress = new RepoTestEntityAddress { City = "Berlin" }
-            },
+            new RepoTestEntity { Id = 3, Name = "Gamma", Age = 25, RepoTestEntityAddress = new RepoTestEntityAddress { City = "Berlin" } },
 
-            new RepoTestEntity
-            {
-                Id = 4,
-                Name = "Delta",
-                Age = 18,
-                RepoTestEntityAddress = new RepoTestEntityAddress { City = "Bern" }
-            }
+            new RepoTestEntity { Id = 4, Name = "Delta", Age = 18, RepoTestEntityAddress = new RepoTestEntityAddress { City = "Bern" } }
         ];
     }
 
@@ -104,11 +87,7 @@ public static class BaseRepositoryTests
                 predicate: entity => entity.Age >= 25,
                 orderBy: query => query.OrderBy(entity => entity.Age),
                 include: query => query.Include(entity => entity.RepoTestEntityAddress),
-                selector: entity => new
-                {
-                    entity.Name,
-                    entity.RepoTestEntityAddress.City
-                }
+                selector: entity => new { entity.Name, entity.RepoTestEntityAddress.City }
             );
 
             // Assert
@@ -155,11 +134,7 @@ public static class BaseRepositoryTests
             await using RepoTestDbContext context = CreateContext(CreateFourEntities());
             RepoTestRepository repository = new(context);
 
-            PageOptions options = new()
-            {
-                Page = 2,
-                Size = 1
-            };
+            PageOptions options = new() { Page = 2, Size = 1 };
 
             // Act
             var result = await repository.GetAllAsync(
@@ -167,11 +142,7 @@ public static class BaseRepositoryTests
                 predicate: entity => entity.Age >= 25,
                 orderBy: query => query.OrderBy(entity => entity.Age),
                 include: query => query.Include(entity => entity.RepoTestEntityAddress),
-                selector: entity => new
-                {
-                    entity.Name,
-                    entity.RepoTestEntityAddress.City
-                }
+                selector: entity => new { entity.Name, entity.RepoTestEntityAddress.City }
             );
 
             // Assert
@@ -195,11 +166,7 @@ public static class BaseRepositoryTests
             await using RepoTestDbContext context = CreateContext(CreateFourEntities());
             RepoTestRepository repository = new(context);
 
-            PageOptions options = new()
-            {
-                Page = 1,
-                Size = 2
-            };
+            PageOptions options = new() { Page = 1, Size = 2 };
             List<OrderingSpecification<RepoTestEntity>> orderingSpecifications =
             [
                 new(entity => entity.Age, IsDescending: true)
@@ -211,11 +178,7 @@ public static class BaseRepositoryTests
                 predicate: entity => entity.Age >= 25,
                 orderingSpecifications: orderingSpecifications,
                 include: query => query.Include(entity => entity.RepoTestEntityAddress),
-                selector: entity => new
-                {
-                    entity.Name,
-                    entity.RepoTestEntityAddress.City
-                }
+                selector: entity => new { entity.Name, entity.RepoTestEntityAddress.City }
             );
 
             // Assert
@@ -246,11 +209,7 @@ public static class BaseRepositoryTests
             await using RepoTestDbContext context = CreateContext(CreateFourEntities());
             RepoTestRepository repository = new(context);
 
-            InfinitePageOptions options = new()
-            {
-                Size = 2,
-                SearchAfterToken = new DynamicCursor([2]).Encode()
-            };
+            InfinitePageOptions options = new() { Size = 2, SearchAfterToken = new DynamicCursor([2]).Encode() };
             List<OrderingSpecification<RepoTestEntity>> orderingSpecifications =
             [
                 new(entity => entity.Id, IsDescending: true)
@@ -262,11 +221,7 @@ public static class BaseRepositoryTests
                 predicate: entity => entity.Age >= 20,
                 orderingSpecifications: orderingSpecifications,
                 include: query => query.Include(entity => entity.RepoTestEntityAddress),
-                selector: entity => new
-                {
-                    entity.Name,
-                    entity.RepoTestEntityAddress.City
-                }
+                selector: entity => new { entity.Name, entity.RepoTestEntityAddress.City }
             );
 
             // Assert
@@ -317,11 +272,7 @@ public static class BaseRepositoryTests
                 predicate: entity => entity.Age == 20 || entity.Age == 30,
                 orderBy: query => query.OrderBy(entity => entity.Age),
                 include: query => query.Include(entity => entity.RepoTestEntityAddress),
-                selector: entity => new
-                {
-                    entity.Name,
-                    entity.RepoTestEntityAddress.City
-                }
+                selector: entity => new { entity.Name, entity.RepoTestEntityAddress.City }
             );
 
             // Assert
@@ -432,12 +383,7 @@ public static class BaseRepositoryTests
             await using RepoTestDbContext context = CreateContext();
             RepoTestRepository repository = new(context);
 
-            RepoTestEntity entity = new()
-            {
-                Id = 1,
-                Name = "Alpha",
-                Age = 20
-            };
+            RepoTestEntity entity = new() { Id = 1, Name = "Alpha", Age = 20 };
 
             // Act
             EntityEntry<RepoTestEntity> entry = await repository.CreateAsync(entity);
@@ -462,12 +408,7 @@ public static class BaseRepositoryTests
             using RepoTestDbContext context = CreateContext();
             RepoTestRepository repository = new(context);
 
-            RepoTestEntity entity = new()
-            {
-                Id = 1,
-                Name = "Alpha",
-                Age = 20
-            };
+            RepoTestEntity entity = new() { Id = 1, Name = "Alpha", Age = 20 };
 
             // Act
             repository.Update(entity);
@@ -490,12 +431,7 @@ public static class BaseRepositoryTests
             using RepoTestDbContext context = CreateContext();
             RepoTestRepository repository = new(context);
 
-            RepoTestEntity entity = new()
-            {
-                Id = 1,
-                Name = "Alpha",
-                Age = 20
-            };
+            RepoTestEntity entity = new() { Id = 1, Name = "Alpha", Age = 20 };
 
             // Act
             repository.Delete(entity);
@@ -511,12 +447,7 @@ public static class BaseRepositoryTests
             await using RepoTestDbContext context = CreateContext();
             RepoTestRepository repository = new(context);
 
-            RepoTestEntity entity = new()
-            {
-                Id = 1,
-                Name = "Alpha",
-                Age = 20
-            };
+            RepoTestEntity entity = new() { Id = 1, Name = "Alpha", Age = 20 };
             context.Entities.Add(entity);
             await context.SaveChangesAsync();
 
@@ -535,33 +466,33 @@ public static class BaseRepositoryTests
     public sealed class DeleteAsyncTests
     {
         [Fact]
-        public async Task ExistingId_DeletesEntityAndReturnsTrue()
+        public async Task ExistingId_DeletesEntityAndReturnsOne()
         {
             // Arrange
             await using RepoTestDbContext context = CreateContext(CreateFourEntities());
             RepoTestRepository repository = new(context);
 
             // Act
-            bool result = await repository.DeleteAsync(1);
+            int deletedCount = await repository.DeleteAsync(e => e.Id == 1);
             await context.SaveChangesAsync();
 
             // Assert
-            Assert.True(result);
+            Assert.Equal(1, deletedCount);
             Assert.Equal(3, await context.Entities.CountAsync());
         }
 
         [Fact]
-        public async Task NonExistingId_ReturnsFalse()
+        public async Task NonExistingId_ReturnsZero()
         {
             // Arrange
             await using RepoTestDbContext context = CreateContext();
             RepoTestRepository repository = new(context);
 
             // Act
-            bool result = await repository.DeleteAsync(99);
+            int deletedCount = await repository.DeleteAsync(e => e.Id == 99);
 
             // Assert
-            Assert.False(result);
+            Assert.Equal(0, deletedCount);
         }
     }
 
@@ -621,24 +552,9 @@ public static class BaseRepositoryTests
             RepoTestRepository repository = new(context);
 
             context.Entities.AddRange(
-                new RepoTestEntity
-                {
-                    Id = 1,
-                    Name = "Alpha",
-                    Age = 20
-                },
-                new RepoTestEntity
-                {
-                    Id = 2,
-                    Name = "Beta",
-                    Age = 30
-                },
-                new RepoTestEntity
-                {
-                    Id = 3,
-                    Name = "Gamma",
-                    Age = 40
-                });
+                new RepoTestEntity { Id = 1, Name = "Alpha", Age = 20 },
+                new RepoTestEntity { Id = 2, Name = "Beta", Age = 30 },
+                new RepoTestEntity { Id = 3, Name = "Gamma", Age = 40 });
             await context.SaveChangesAsync();
 
             // Act
