@@ -2,7 +2,7 @@ using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Core.Search;
 using Elastic.Clients.Elasticsearch.QueryDsl;
 
-namespace DavidGroup.Core.DataAccess.ElasticSearch;
+namespace DavidGroup.Core.DataAccess.Elasticsearch;
 
 /// <summary>
 /// Provides helper methods for building common Elasticsearch queries.
@@ -57,7 +57,7 @@ public static class ElasticQueryBuilder
     public static Query EitherShouldHavePropertyInRangeOrNot(string field, Number? from, Number? to)
     {
         if (from is null && to is null)
-            throw new ArgumentException(ElasticSearchErrorMessages.EitherArgumentMustBeSpecified);
+            throw new ArgumentException(ElasticsearchErrorMessages.EitherArgumentMustBeSpecified);
 
         return new NumberRangeQuery(new Field(field)) { Gte = from, Lte = to };
     }
@@ -75,7 +75,7 @@ public static class ElasticQueryBuilder
     public static Query EitherShouldHavePropertyInRangeOrNot(string field, DateTime? from, DateTime? to)
     {
         if (from is null && to is null)
-            throw new ArgumentException(ElasticSearchErrorMessages.EitherArgumentMustBeSpecified);
+            throw new ArgumentException(ElasticsearchErrorMessages.EitherArgumentMustBeSpecified);
 
         return new DateRangeQuery(new Field(field)) { Gte = from, Lte = to };
     }

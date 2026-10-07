@@ -1,4 +1,4 @@
-using DavidGroup.Core.DataAccess.ElasticSearch;
+using DavidGroup.Core.DataAccess.Elasticsearch;
 
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
@@ -9,9 +9,9 @@ using Moq;
 
 using HealthStatus = Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus;
 
-namespace DavidGroup.Core.DataAccess.Tests.ElasticSearch;
+namespace DavidGroup.Core.DataAccess.Tests.Elasticsearch;
 
-public static class ElasticSearchHealthCheckTests
+public static class ElasticsearchHealthCheckTests
 {
     // -------------------------------------------------------------------------
     // Helpers
@@ -53,7 +53,7 @@ public static class ElasticSearchHealthCheckTests
         {
             // Arrange
             ElasticsearchClient client = CreateClientWithResponse(isValid: true);
-            ElasticSearchHealthCheck healthCheck = new(client);
+            ElasticsearchHealthCheck healthCheck = new(client);
 
             // Act
             HealthCheckResult result = await healthCheck.CheckHealthAsync(CreateContext());
@@ -67,7 +67,7 @@ public static class ElasticSearchHealthCheckTests
         {
             // Arrange
             ElasticsearchClient client = CreateClientWithResponse(isValid: true);
-            ElasticSearchHealthCheck healthCheck = new(client);
+            ElasticsearchHealthCheck healthCheck = new(client);
 
             // Act
             HealthCheckResult result = await healthCheck.CheckHealthAsync(CreateContext());
@@ -81,7 +81,7 @@ public static class ElasticSearchHealthCheckTests
         {
             // Arrange
             ElasticsearchClient client = CreateClientWithResponse(isValid: true);
-            ElasticSearchHealthCheck healthCheck = new(client);
+            ElasticsearchHealthCheck healthCheck = new(client);
 
             // Act
             HealthCheckResult result = await healthCheck.CheckHealthAsync(CreateContext());
@@ -102,7 +102,7 @@ public static class ElasticSearchHealthCheckTests
         {
             // Arrange
             ElasticsearchClient client = CreateClientWithResponse(isValid: false);
-            ElasticSearchHealthCheck healthCheck = new(client);
+            ElasticsearchHealthCheck healthCheck = new(client);
 
             // Act
             HealthCheckResult result = await healthCheck.CheckHealthAsync(CreateContext());
@@ -116,7 +116,7 @@ public static class ElasticSearchHealthCheckTests
         {
             // Arrange
             ElasticsearchClient client = CreateClientWithResponse(isValid: false);
-            ElasticSearchHealthCheck healthCheck = new(client);
+            ElasticsearchHealthCheck healthCheck = new(client);
 
             // Act
             HealthCheckResult result = await healthCheck.CheckHealthAsync(CreateContext());
@@ -130,7 +130,7 @@ public static class ElasticSearchHealthCheckTests
         {
             // Arrange
             ElasticsearchClient client = CreateClientWithResponse(isValid: false);
-            ElasticSearchHealthCheck healthCheck = new(client);
+            ElasticsearchHealthCheck healthCheck = new(client);
 
             // Act
             HealthCheckResult result = await healthCheck.CheckHealthAsync(CreateContext());
@@ -155,7 +155,7 @@ public static class ElasticSearchHealthCheckTests
             clientMock.Setup(x => x.PingAsync(cancellationToken: It.IsAny<CancellationToken>()))
                 .Throws(new Exception("connection refused"));
 
-            ElasticSearchHealthCheck healthCheck = new(clientMock.Object);
+            ElasticsearchHealthCheck healthCheck = new(clientMock.Object);
 
             // Act
             HealthCheckResult result = await healthCheck.CheckHealthAsync(CreateContext());
@@ -173,7 +173,7 @@ public static class ElasticSearchHealthCheckTests
             clientMock.Setup(x => x.PingAsync(cancellationToken: It.IsAny<CancellationToken>()))
                 .Throws(new Exception("connection refused"));
 
-            ElasticSearchHealthCheck healthCheck = new(clientMock.Object);
+            ElasticsearchHealthCheck healthCheck = new(clientMock.Object);
 
             // Act
             HealthCheckResult result = await healthCheck.CheckHealthAsync(CreateContext());
@@ -193,7 +193,7 @@ public static class ElasticSearchHealthCheckTests
             clientMock.Setup(x => x.PingAsync(cancellationToken: It.IsAny<CancellationToken>()))
                 .Throws(thrown);
 
-            ElasticSearchHealthCheck healthCheck = new(clientMock.Object);
+            ElasticsearchHealthCheck healthCheck = new(clientMock.Object);
 
             // Act
             HealthCheckResult result = await healthCheck.CheckHealthAsync(CreateContext());
@@ -211,7 +211,7 @@ public static class ElasticSearchHealthCheckTests
             clientMock.Setup(x => x.PingAsync(cancellationToken: It.IsAny<CancellationToken>()))
                 .Throws(new TimeoutException("timed out"));
 
-            ElasticSearchHealthCheck healthCheck = new(clientMock.Object);
+            ElasticsearchHealthCheck healthCheck = new(clientMock.Object);
 
             // Act
             HealthCheckResult result = await healthCheck.CheckHealthAsync(CreateContext());
@@ -236,7 +236,7 @@ public static class ElasticSearchHealthCheckTests
             client.Setup(c => c.PingAsync(cts.Token))
                 .ReturnsAsync(new PingResponse());
 
-            ElasticSearchHealthCheck healthCheck = new(client.Object);
+            ElasticsearchHealthCheck healthCheck = new(client.Object);
 
             // Act
             await healthCheck.CheckHealthAsync(CreateContext(), cts.Token);
@@ -255,7 +255,7 @@ public static class ElasticSearchHealthCheckTests
             client.Setup(c => c.PingAsync(It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new OperationCanceledException("cancelled"));
 
-            ElasticSearchHealthCheck healthCheck = new(client.Object);
+            ElasticsearchHealthCheck healthCheck = new(client.Object);
 
             // Act
             HealthCheckResult result = await healthCheck.CheckHealthAsync(CreateContext());

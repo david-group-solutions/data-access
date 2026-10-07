@@ -1,5 +1,5 @@
 using DavidGroup.Core.DataAccess.Cache;
-using DavidGroup.Core.DataAccess.ElasticSearch;
+using DavidGroup.Core.DataAccess.Elasticsearch;
 using DavidGroup.Core.DataAccess.EventBus;
 
 using HealthChecks.UI.Client;
@@ -19,7 +19,7 @@ else
 builder.Services.AddRabbitMq("EventBus");
 #endif
 
-builder.Services.AddElasticsearchClient();
+builder.Services.AddElasticsearchClient(builder.Configuration);
 
 builder.Services.AddDistributedCache(builder.Environment, builder.Configuration);
 
@@ -32,7 +32,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddHealthChecks()
-    .AddCheck<ElasticSearchHealthCheck>("elasticsearch", tags: ["ready", "elasticsearch"]);
+    .AddCheck<ElasticsearchHealthCheck>("elasticsearch", tags: ["ready", "elasticsearch"]);
 
 WebApplication app = builder.Build();
 

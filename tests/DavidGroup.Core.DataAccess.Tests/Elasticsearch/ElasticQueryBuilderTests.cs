@@ -1,10 +1,10 @@
-using DavidGroup.Core.DataAccess.ElasticSearch;
+using DavidGroup.Core.DataAccess.Elasticsearch;
 
 using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Core.Search;
 using Elastic.Clients.Elasticsearch.QueryDsl;
 
-namespace DavidGroup.Core.DataAccess.Tests.ElasticSearch;
+namespace DavidGroup.Core.DataAccess.Tests.Elasticsearch;
 
 public static class ElasticQueryBuilderTests
 {
@@ -176,7 +176,7 @@ public static class ElasticQueryBuilderTests
             ArgumentException ex = Assert.Throws<ArgumentException>(()
                 => ElasticQueryBuilder.EitherShouldHavePropertyInRangeOrNot("price", (Number?)null, (Number?)null));
 
-            Assert.Equal(ElasticSearchErrorMessages.EitherArgumentMustBeSpecified, ex.Message);
+            Assert.Equal(ElasticsearchErrorMessages.EitherArgumentMustBeSpecified, ex.Message);
         }
     }
 
@@ -262,7 +262,7 @@ public static class ElasticQueryBuilderTests
             ArgumentException ex = Assert.Throws<ArgumentException>(()
                 => ElasticQueryBuilder.EitherShouldHavePropertyInRangeOrNot("price", (DateTime?)null, (DateTime?)null));
 
-            Assert.Equal(ElasticSearchErrorMessages.EitherArgumentMustBeSpecified, ex.Message);
+            Assert.Equal(ElasticsearchErrorMessages.EitherArgumentMustBeSpecified, ex.Message);
         }
     }
 

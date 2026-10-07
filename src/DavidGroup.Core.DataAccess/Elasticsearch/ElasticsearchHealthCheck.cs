@@ -2,7 +2,7 @@ using Elastic.Clients.Elasticsearch;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace DavidGroup.Core.DataAccess.ElasticSearch;
+namespace DavidGroup.Core.DataAccess.Elasticsearch;
 
 /// <summary>
 /// Represents a health check for an Elasticsearch cluster.
@@ -11,7 +11,7 @@ namespace DavidGroup.Core.DataAccess.ElasticSearch;
 /// This implementation uses an <see cref="ElasticsearchClient"/> to ping the cluster and
 /// report its health status. It can be registered with the ASP.NET Core health check system.
 /// </remarks>
-public class ElasticSearchHealthCheck(ElasticsearchClient client) : IHealthCheck
+public class ElasticsearchHealthCheck(ElasticsearchClient client) : IHealthCheck
 {
     /// <summary>
     /// Logic of health check.
